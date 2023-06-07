@@ -1,6 +1,12 @@
-migrations
 # Created by https://www.toptal.com/developers/gitignore/api/django,windows,macos,python,pycharm,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=django,windows,macos,python,pycharm,visualstudiocode
+
+#migrations
+my_settings.py
+prac.py
+**/migrations/**.py
+!**/migrations/__init__.py
+
 
 ### Django ###
 *.log
@@ -11,6 +17,8 @@ local_settings.py
 db.sqlite3
 db.sqlite3-journal
 media
+.vscode
+
 # If your build process includes running collectstatic, then you probably don't need or want to include staticfiles/
 # in your Git repository. Update and uncomment the following line accordingly.
 # <django-project-name>/staticfiles/
