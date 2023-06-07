@@ -1,9 +1,9 @@
-from django.shortcuts import render
 from articles.models import Articles
 from rest_framework.views import APIView
 from rest_framework.generics import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
+from users.models import Users
 import datetime
 from articles.serializers import ArticlesSerializer, ArticlesCreateSerializer, ArticlePutSerializer
 
