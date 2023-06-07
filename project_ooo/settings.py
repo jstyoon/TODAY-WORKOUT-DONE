@@ -41,8 +41,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'User',
-    'Article',
+    
+    'users',
+    'articles',
 
 # drf 위치
     'rest_framework',
