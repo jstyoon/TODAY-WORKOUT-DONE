@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
-from django.db import models
 # Create your models here.
 
 class commonModel(models.Model):
@@ -44,3 +43,26 @@ class User(AbstractBaseUser):
     password = models.CharField("Password", max_length=128)
     bio = models.CharField(max_length=255)
     avatar = models.ImageField(upload_to="%Y/%m", blank=True)
+    # 관리자 권한
+    is_admin = models.BooleanField(default=False)
+    # 계정 활성화
+    is_active = models.BooleanField(default=True)
+
+    USERNAME_FIELD = 'username'
+
+    REQUIRED_FIELDS = ['email',]
+
+    objects = UserManager()  # Necessary when creating custom user
+
+    def __str__(self):
+        return f"{self.username}"
+
+    def has_perm(self, perm, obj=None):
+        return True
+
+    def has_module_perms(self, app_label):
+        return True
+
+    @property
+    def is_staff(self):
+        return self.is_admin
