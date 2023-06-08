@@ -27,15 +27,16 @@ class ArticlesCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Articles
-        fields = ["pk", "user", "title", "content",
-                "image", "created_at", "updated_at"]
+        fields = ["pk", "user", "category", "content","select_day",
+                "image", "check_type",
+                "created_at", "updated_at"]
 
 
 class ArticlePutSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Articles
-        fields = ["title", "content", "image"]
+        fields = ["category", "select_day", "content","check_type", "image"]
 
 
 
