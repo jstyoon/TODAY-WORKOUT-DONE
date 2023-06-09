@@ -90,3 +90,13 @@ def update_complete_at(sender, instance, **kwargs):
 
 
 
+
+
+
+class Comment(commonModel):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    article = models.ForeignKey(Articles, on_delete=models.CASCADE)
+    content = models.TextField(max_length=100)
+
+    def __str__(self):
+        return self.content
