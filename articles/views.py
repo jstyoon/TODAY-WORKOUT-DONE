@@ -44,3 +44,13 @@ class CommentDetailView(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             return Response("자신의 댓글만 삭제할 수 있습니다", status=status.HTTP_403_FORBIDDEN)
+
+class LikesView(APIView):
+    def post(self, request, comment_id):
+        comment = get_object_or_404(Articles, id=comment_id)
+        if request.user in comment.likes.all():
+            comment.likes.remove(request.user)
+            return Response("좋아요", status=status.HTTP_200_OK)
+        else:
+            comment.likes.add(request.user)
+            return Response("좋아요 취소", status=status.HTTP_200_OK)

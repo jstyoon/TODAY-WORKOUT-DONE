@@ -20,6 +20,7 @@ class Comment(commonModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     article = models.ForeignKey(Articles, on_delete=models.CASCADE)
     content = models.TextField(max_length=100)
+    likes = models.ManyToManyField(User, related_name="likes")
 
     def __str__(self):
         return self.content
