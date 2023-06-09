@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from articles.models import Articles
+from .models import Comment
 
 
 
@@ -39,4 +40,17 @@ class ArticlePutSerializer(serializers.ModelSerializer):
         fields = ["category", "select_day", "content","check_type", "image"]
 
 
+
+
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = '__all__'
+
+class CommentCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ('content',)
 
