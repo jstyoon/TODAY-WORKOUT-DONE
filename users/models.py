@@ -21,7 +21,7 @@ class commonModel(models.Model):
 # custom user model 사용 시 UserManager 클래스와 create_user, create_superuser 함수가 정의되어 있어야 함
 class UserManager(BaseUserManager):
 
-    def create_user(self, email, username, password=None):
+    def create_user(self, username, email, password):
 
         if not email:
             raise ValueError('사용자 이메일은 필수 입력 사항 입니다.')
@@ -37,23 +37,26 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, username, password=None):
-        user = self.create_user(
-            email,
-            username=username,
-            password=password
-        )
-        user.is_admin = True
-        user.is_active = True
-        user.save(using=self._db)
-        return user
+    def create_superuser(self, username, email, password):
 
+        superuser = self.create_user(
+            email=email,
+            username=username,
+            password=password,
+        )
+        superuser.is_admin = True
+        superuser.is_active = True
+        superuser.save(using=self._db)
+        return superuser
 
 class User(AbstractBaseUser):
-    email = models.EmailField("email", max_length=100, unique=True)
-    username = models.CharField("username", max_length=20, unique=True)
+    """ AbstractBaseUser 상속, 재정의 (commonModel 자동 상속) """
+    
+    email = models.EmailField("email", max_length=30, unique=True)
+    username = models.CharField("username", max_length=30, unique=True)
     password = models.CharField("password", max_length=128)
     bio = models.CharField(max_length=255)
+    # 어떤 정보 받을지 미정
     avatar = models.ImageField(upload_to="%Y/%m", blank=True)
     # 관리자 권한
     is_admin = models.BooleanField(default=False)
@@ -64,7 +67,7 @@ class User(AbstractBaseUser):
     # id로 사용 할 필드 지정
     REQUIRED_FIELDS = ['email']
     # user 생성시 입력하는 필드 지정 (id, pw 제외)
-    objects = UserManager()  
+    objects = UserManager()
     # custom user 생성에 필요한 변수 선언
 
     def __str__(self):

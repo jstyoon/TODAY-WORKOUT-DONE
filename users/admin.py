@@ -44,7 +44,7 @@ class UserChangeForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ["email", "username"]
+        fields = ["email", "username", "password", "is_active", "is_admin"]
 
 
 class UserAdmin(BaseUserAdmin):
@@ -54,11 +54,11 @@ class UserAdmin(BaseUserAdmin):
 
     # 유저 모델을 표시하는 데 사용할 필드입니다.
     # 'auth.User'의 특정 필드를 참조하는 'baseUserAdmin'의 정의를 재정의합니다
-    list_display = ["email", "username", "password"]
-    list_filter = []
+    list_display = ["email", "username", "is_admin", "is_active"]
+    list_filter = ["is_admin"]
     fieldsets = [
-        (None, {"fields": ["email", "username"]}),
-        ("Permissions", {"fields": ["is_admin", "is_active"]}),
+        (None, {"fields": ["email", "username", "password"]}),
+        ("Permissions", {"fields": ["is_admin"]}),
     ]
     # 'add_fieldsets'는 표준 'ModelAdmin' 특성이 아닙니다.
     # 'UserAdmin'은 유저를 만들 때 이 속성을 사용하도록 'get_fieldsets'를 재정의합니다.

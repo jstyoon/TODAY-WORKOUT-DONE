@@ -34,39 +34,28 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-# django 위치
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+    # project app
     'users',
     'articles',
-
-# drf 위치
+    # django-allauth
+    'allauth',
+    'allauth.account',
+    # django-cors-headers
+    "corsheaders",
+    # drf
     'rest_framework',
     'rest_framework_simplejwt',
-
-# 써드파티 위치
-    "corsheaders",
-
+    'rest_framework.authtoken',
+    # dj_rest_auth
+    'dj_rest_auth',
+    'dj_rest_auth.registration',
 ]
-
-REST_FRAMEWORK = {
-
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
-
-}
-
-# Pay Load 재정의 : https://django-rest-framework-simplejwt.readthedocs.io/en/latest/customizing_token_claims.html
-SIMPLE_JWT = {
-    "TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.MyTokenObtainPairSerializer",
-}
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -151,10 +140,23 @@ STATIC_URL = '/static/'
 
 MEDIA_ROOT = BASE_DIR / "media"
 MEDIA_URL = "/media/"
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication', # 필수
+    )
+}
+
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_HEADERS = (
+    'authorization',    
+    'content-type',
+    )
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=600),
@@ -187,13 +189,20 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=30),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 
-    "TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainPairSerializer",
+    "TOKEN_OBTAIN_SERIALIZER": 'rest_framework_simplejwt.serializers.TokenObtainPairSerializer',
     "TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSerializer",
     "TOKEN_VERIFY_SERIALIZER": "rest_framework_simplejwt.serializers.TokenVerifySerializer",
     "TOKEN_BLACKLIST_SERIALIZER": "rest_framework_simplejwt.serializers.TokenBlacklistSerializer",
     "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
-
 }
-
-CORS_ALLOW_ALL_ORIGINS = True
+# 인증 전역 설정
+REST_AUTH = {
+    'USE_JWT': True,
+    'SESSION_LOGIN': False,
+    'JWT_TOKEN_CLAIMS_SERIALIZER': 'users.serializers.CustomTokenObtainPairSerializer', # 토큰 페이로드 재정의
+    'JWT_AUTH_HTTPONLY':False # refresh 토큰 생성
+}
+ACCOUNT_EMAIL_VERIFICATION = 'none' # 이메일 인증 구현시 변경 필요
+REST_USE_JWT = True
+SITE_ID = 1
