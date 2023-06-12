@@ -74,7 +74,7 @@ class Articles(commonModel):
     out_subcategory = models.ForeignKey(OutSubCategory, on_delete=models.CASCADE, blank=True, null=True)
     image = models.FileField(
         "이미지", upload_to='', blank=True, null=True) 
-    likes = models.ManyToManyField(User, related_name="like_articles")
+    likes = models.ManyToManyField(User, blank=True, related_name="like_articles")
     
     
     def __str__(self):
@@ -83,7 +83,7 @@ class Articles(commonModel):
 
 @receiver(pre_save, sender=Articles)
 def update_complete_at(sender, instance, **kwargs):
-  """ check_status값이 True값으로 전환될때 해당 시간을 저장함 """
+#   """ check_status값이 True값으로 전환될때 해당 시간을 저장함 """
     if instance.check_status:
         instance.complete_at = timezone.now()
 
@@ -92,7 +92,7 @@ class Comment(commonModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     article = models.ForeignKey(Articles, on_delete=models.CASCADE)
     content = models.TextField(max_length=100)
-    likes = models.ManyToManyField(User, related_name="like_comments")
+    likes = models.ManyToManyField(User, blank=True, related_name="like_comments")
 
     def __str__(self):
         return self.content
