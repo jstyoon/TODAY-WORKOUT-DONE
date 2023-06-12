@@ -8,8 +8,10 @@ from .models import User
 # Register your models here.
 
 class UserCreationForm(forms.ModelForm):
-    """ 새 유저를 생성하기 위한 양식입니다. 
-    모든 필수 필드와 반복되는 암호를 포함합니다."""
+    """ 
+    새 유저를 생성하기 위한 양식입니다. 
+    모든 필수 필드와 반복되는 암호를 포함합니다.
+    """
 
     password1 = forms.CharField(label="Password", widget=forms.PasswordInput)
     password2 = forms.CharField(label="Password confirmation", widget=forms.PasswordInput)
@@ -36,9 +38,11 @@ class UserCreationForm(forms.ModelForm):
 
 
 class UserChangeForm(forms.ModelForm):
-    """ 유저를 업데이트하기 위한 양식입니다. 
+    """ 
+    유저를 업데이트하기 위한 양식입니다. 
     유저의 모든 필드를 포함하지만 
-    암호 필드를 관리자의 비활성화된 암호 해시 표시 필드로 바꿉니다."""
+    암호 필드를 관리자의 비활성화된 암호 해시 표시 필드로 바꿉니다.
+    """
 
     password = ReadOnlyPasswordHashField()
 

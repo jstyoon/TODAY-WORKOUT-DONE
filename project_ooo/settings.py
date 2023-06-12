@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'dj_rest_auth.registration',
 ]
 
+
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
@@ -99,7 +100,9 @@ DATABASES = {
     }
 }
 
+
 AUTH_USER_MODEL = 'users.User'
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -138,25 +141,29 @@ USE_TZ = True
 STATIC_ROOT = BASE_DIR /  "static" 
 STATIC_URL = '/static/'
 
+
 MEDIA_ROOT = BASE_DIR / "media"
 MEDIA_URL = "/media/"
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication', # 필수
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
 }
+
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_HEADERS = (
     'authorization',    
     'content-type',
     )
+
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=600),
@@ -196,7 +203,8 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
-# 인증 전역 설정
+
+# 인증 전역 설정(인증 설정 따로 분리하는게 좋긴함)
 REST_AUTH = {
     'USE_JWT': True,
     'SESSION_LOGIN': False,

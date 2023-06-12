@@ -20,8 +20,7 @@ class commonModel(models.Model):
 
 # custom user model 사용 시 UserManager 클래스와 create_user, create_superuser 함수가 정의되어 있어야 함
 class UserManager(BaseUserManager):
-
-    def create_user(self, username, email, password):
+    def create_user(self, email, username, password=None):
 
         if not email:
             raise ValueError('사용자 이메일은 필수 입력 사항 입니다.')
@@ -48,6 +47,7 @@ class UserManager(BaseUserManager):
         superuser.is_active = True
         superuser.save(using=self._db)
         return superuser
+
 
 class User(AbstractBaseUser):
     """ AbstractBaseUser 상속, 재정의 (commonModel 자동 상속) """
