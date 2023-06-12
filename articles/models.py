@@ -74,7 +74,8 @@ class Articles(commonModel):
     out_subcategory = models.ForeignKey(OutSubCategory, on_delete=models.CASCADE, blank=True, null=True)
     image = models.FileField(
         "이미지", upload_to='', blank=True, null=True) 
-    likes = models.ManyToManyField(User, blank=True, related_name="like_articles")
+    likes = models.ManyToManyField(User, blank=True, related_name="like_articles") # 게시물 좋아요
+    # likes = models.ManyToManyField(User, blank=True, related_name="like_articles", through='Feed_like') 개인 프로필에서 보이는 좋아요 한 글
     
     
     def __str__(self):
@@ -96,3 +97,8 @@ class Comment(commonModel):
 
     def __str__(self):
         return self.content
+
+# 개인 프로필에서 보이는 좋아요 한 글
+# class Feed_like(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+#     diary = models.ForeignKey(Articles, on_delete=models.CASCADE, null=True)

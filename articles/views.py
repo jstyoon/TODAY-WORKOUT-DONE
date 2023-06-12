@@ -53,8 +53,10 @@ class ArticlesDetailView(APIView):
             return Response({"message": "삭제완료!"},status=status.HTTP_204_NO_CONTENT)
         else:
             return Response({"message": "권한이 없습니다!"},status=status.HTTP_400_BAD_REQUEST)
-   
-class ArticleLikeView(APIView):
+          
+          
+          
+class ArticleLikesView(APIView):
     def post(self, request, article_id):
         article = get_object_or_404(Articles, id=article_id)
         if request.user in article.likes.all():
@@ -69,8 +71,8 @@ class ArticleLikeView(APIView):
 class CommentView(APIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     def get(self, request, article_id):
-        article = Articles.objects.filter(article_id=article_id)
-        serializer = CommentSerializer(article, many=True)
+        comment = Comment.objects.filter(article_id=article_id)
+        serializer = CommentSerializer(comment, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, article_id):
@@ -92,7 +94,8 @@ class CommentDetailView(APIView):
         
         if request.user == comment.user:
             serializer = CommentCreateSerializer(comment, data=request.data)
-            if serializer.save():
+            if serializer.is_valid():
+                serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -108,15 +111,15 @@ class CommentDetailView(APIView):
             return Response({"message": "댓글이 없습니다."}, status=status.HTTP_404_NOT_FOUND)
 
         if comment.user != request.user:
-            return Response({"message": "댓글 작성자만 삭제할 수 있습니다."}, status=status.HTTP_403_FORBIDDEN)        
-
-        comment.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response({"message": "댓글 작성자만 삭제할 수 있습니다."}, status=status.HTTP_403_FORBIDDEN)
+        else :
+            comment.delete()
+            return Response({"message":"삭제되었습니다."}, status=status.HTTP_204_NO_CONTENT)
         
 
 class CommentLikesView(APIView):
     def post(self, request, comment_id):
-        comment = get_object_or_404(Articles, id=comment_id)
+        comment = get_object_or_404(Comment, id=comment_id)
         if request.user in comment.likes.all():
             comment.likes.remove(request.user)
             return Response({"message":"좋아요"}, status=status.HTTP_200_OK)
