@@ -9,8 +9,12 @@ from django.shortcuts import render
 from .models import Articles, Comment
 from .serializers import CommentSerializer, CommentCreateSerializer
 
-
-
+from .models import Weather
+from .serializers import WeatherSerializer
+import requests
+import json
+from django.shortcuts import redirect
+import googlemaps
 
 
 
@@ -100,3 +104,33 @@ class CommentDetailView(APIView):
         else:
             return Response("자신의 댓글만 삭제할 수 있습니다", status=status.HTTP_403_FORBIDDEN)
 
+class WeatherViews(APIView):
+    def get(self, request):
+        # serializer = WeatherSerializer()
+        weather = Weather()
+        res = requests.get(weather.url, params=weather.para)
+        res_json = json.loads(res.content)
+        items=res_json['response']['body']['items']['item']
+        response=redirect('/articles/weather/')
+        response.set_cookie('items', items)
+        return Response(f'{request.COOKIES.items}')
+    
+
+class MapViews(APIView):
+    def get(self, request):
+        # serializer = WeatherSerializer()
+        weather = Weather()
+        res = requests.get(weather.url, params=weather.para)
+        res_json = json.loads(res.content)
+        items=res_json['response']['body']['items']['item']
+        response=redirect('/articles/weather/')
+        response.set_cookie('items', items)
+        return Response(f'{request.COOKIES.items}')
+
+# result = requests.post(url, data) # 해당 API에 요청을 보내며 데이터를 추출한다.
+#     result2 = json.loads(result.text)
+
+#     lat = result2["location"]["lat"] # 현재 위치의 위도 추출
+#     lng = result2["location"]["lng"] # 현재 위치의 경도 추출
+#     gmaps = googlemaps.Client(local_settings.map_key)
+#     reverse_geocode_result = gmaps.reverse_geocode((lat, lng),language='ko')

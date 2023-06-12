@@ -1,6 +1,10 @@
 from django.db import models
 from users.models import User, commonModel
 
+from . import local_settings
+
+
+
 # Create your models here.
 class Articles(commonModel):
     class Meta:
@@ -38,3 +42,20 @@ class Comment(commonModel):
 
     def __str__(self):
         return self.content
+class Weather(commonModel):
+    url ='http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst'
+    para={'ServiceKey':local_settings.weather_key, 'pageNo':1,'numOfRows':'1000','dataType': 'JSON', 'base_date':'20230611','base_time':'1900','nx':'55','ny':'127'}
+    def __str__(self):
+        return self.para
+
+class Map(commonModel):
+    url ='https://www.googleapis.com/geolocation/v1/geolocate?key={local_settings.map_key}'
+    data = {
+        'considerIp': True, # 현 IP로 데이터 추출
+        }
+    
+    
+    def __str__(self):
+        return self.data
+
+    

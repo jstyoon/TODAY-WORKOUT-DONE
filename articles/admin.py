@@ -1,5 +1,5 @@
 from django.contrib import admin
-from articles.models import Article, Comment
+from articles.models import Articles, Comment
 
-admin.site.register(Article)
+admin.site.register(Articles)
 admin.site.register(Comment)

@@ -2,6 +2,7 @@ from rest_framework import serializers
 from articles.models import Articles
 from .models import Comment
 
+from .models import Weather
 
 
 class ArticlesSerializer(serializers.ModelSerializer):
@@ -54,3 +55,7 @@ class CommentCreateSerializer(serializers.ModelSerializer):
         model = Comment
         fields = ('content',)
 
+class WeatherSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Weather
+        fields = '__all__'
