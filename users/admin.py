@@ -8,8 +8,10 @@ from .models import User
 # Register your models here.
 
 class UserCreationForm(forms.ModelForm):
-    """A form for creating new users. Includes all the required
-    fields, plus a repeated password."""
+    """ 
+    새 유저를 생성하기 위한 양식입니다. 
+    모든 필수 필드와 반복되는 암호를 포함합니다.
+    """
 
     password1 = forms.CharField(label="Password", widget=forms.PasswordInput)
     password2 = forms.CharField(label="Password confirmation", widget=forms.PasswordInput)
@@ -36,34 +38,34 @@ class UserCreationForm(forms.ModelForm):
 
 
 class UserChangeForm(forms.ModelForm):
-    """A form for updating users. Includes all the fields on
-    the user, but replaces the password field with admin's
-    disabled password hash display field.
+    """ 
+    유저를 업데이트하기 위한 양식입니다. 
+    유저의 모든 필드를 포함하지만 
+    암호 필드를 관리자의 비활성화된 암호 해시 표시 필드로 바꿉니다.
     """
 
     password = ReadOnlyPasswordHashField()
 
     class Meta:
         model = User
-        fields = ["email", "username"]
+        fields = ["email", "username", "password", "is_active", "is_admin"]
 
 
 class UserAdmin(BaseUserAdmin):
-    # The forms to add and change user instances
+    """ 유저를 추가하거나 유저 객체를 변경하는 양식입니다. """
     form = UserChangeForm
     add_form = UserCreationForm
 
-    # The fields to be used in displaying the User model.
-    # These override the definitions on the base UserAdmin
-    # that reference specific fields on auth.User.
-    list_display = ["email", "username", "password"]
-    list_filter = []
+    # 유저 모델을 표시하는 데 사용할 필드입니다.
+    # 'auth.User'의 특정 필드를 참조하는 'baseUserAdmin'의 정의를 재정의합니다
+    list_display = ["email", "username", "is_admin", "is_active"]
+    list_filter = ["is_admin"]
     fieldsets = [
-        (None, {"fields": ["email", "username"]}),
-        ("Permissions", {"fields": ["is_admin", "is_active"]}),
+        (None, {"fields": ["email", "username", "password"]}),
+        ("Permissions", {"fields": ["is_admin"]}),
     ]
-    # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
-    # overrides get_fieldsets to use this attribute when creating a user.
+    # 'add_fieldsets'는 표준 'ModelAdmin' 특성이 아닙니다.
+    # 'UserAdmin'은 유저를 만들 때 이 속성을 사용하도록 'get_fieldsets'를 재정의합니다.
     add_fieldsets = [
         (
             None,

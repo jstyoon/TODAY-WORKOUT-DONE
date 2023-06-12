@@ -9,12 +9,14 @@ from django.shortcuts import render
 from .models import Articles, Comment
 from .serializers import CommentSerializer, CommentCreateSerializer
 
+
 from .models import Weather
 from .serializers import WeatherSerializer
 import requests
 import json
 from django.shortcuts import redirect
 import googlemaps
+
 
 
 
@@ -32,8 +34,7 @@ class ArticlesViews(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-
+        
 class ArticlesDetailView(APIView):
 
     def get(self, request, article_id):
@@ -62,13 +63,8 @@ class ArticlesDetailView(APIView):
             return Response({"message": "삭제완료!"},status=status.HTTP_204_NO_CONTENT)
         else:
             return Response({"message": "권한이 없습니다!"},status=status.HTTP_400_BAD_REQUEST)
-          
-          
-          
-          
-          
-          
-          
+
+
 class CommentView(APIView):
     def get(self, request, article_id):
         article = Articles.objects.filter(article_id=article_id)
@@ -82,7 +78,7 @@ class CommentView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+
 
 class CommentDetailView(APIView):
     def put(self, request, article_id, comment_id):
@@ -134,3 +130,4 @@ class MapViews(APIView):
 #     lng = result2["location"]["lng"] # 현재 위치의 경도 추출
 #     gmaps = googlemaps.Client(local_settings.map_key)
 #     reverse_geocode_result = gmaps.reverse_geocode((lat, lng),language='ko')
+
