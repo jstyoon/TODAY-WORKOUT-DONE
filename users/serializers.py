@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from users.models import User
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+# from articles.models import Feed_like 개인 프로필에서 보이는 좋아요한 글
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     """ 유저 토큰 페이로드 재정의 """
@@ -38,3 +39,16 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 #         user.set_password(user.password)
 #         user.save()
 #         return user
+
+
+
+# 개인 프로필에서 보이는 좋아요 한 글
+#
+#     def get_likes_article(self, obj):
+#         likes = Feed_like.objects.filter(user=obj)
+#         return FeedLikeSerializer(likes, many=True).data
+#
+# class FeedLikeSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Feed_like
+#         fields = "__all__"
