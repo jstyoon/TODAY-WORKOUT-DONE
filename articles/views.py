@@ -93,7 +93,7 @@ class CommentView(APIView):
 class CommentDetailView(APIView):
     def put(self, request, article_id, comment_id):
         try :
-            comment = get_object_or_404(Comment, id = comment_id)
+            comment = Comment.objects.get(id=comment_id)
         except Comment.DoesNotExist:
             return Response({"message":"댓글이 없습니다."}, status=status.HTTP_404_NOT_FOUND)
         
@@ -106,13 +106,19 @@ class CommentDetailView(APIView):
         else:
             return Response({"message":"자신의 댓글만 수정할 수 있습니다."}, status=status.HTTP_403_FORBIDDEN)
 
+
     def delete(self, request, article_id, comment_id):
-        comment = get_object_or_404(Comment, id = comment_id)
-        if request.user == comment.user:
-            comment.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        else:
-            return Response({"message":"자신의 댓글만 삭제할 수 있습니다"}, status=status.HTTP_403_FORBIDDEN)
+        try:
+            comment = Comment.objects.get(id=comment_id)
+        except Comment.DoesNotExist:
+            return Response({"message": "댓글이 없습니다."}, status=status.HTTP_404_NOT_FOUND)
+
+        if comment.user != request.user:
+            return Response({"message": "댓글 작성자만 삭제할 수 있습니다."}, status=status.HTTP_403_FORBIDDEN)        
+
+        comment.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+        
 
 class CommentLikesView(APIView):
     def post(self, request, comment_id):
