@@ -10,10 +10,6 @@ from .models import Articles, Comment
 from .serializers import CommentSerializer, CommentCreateSerializer
 
 
-
-
-
-
 class ArticlesViews(APIView):
     def get(self, request):
         articles = Articles.objects.all()
@@ -28,8 +24,7 @@ class ArticlesViews(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-
+        
 class ArticlesDetailView(APIView):
 
     def get(self, request, article_id):
@@ -88,7 +83,7 @@ class CommentView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+
 
 class CommentDetailView(APIView):
     def put(self, request, article_id, comment_id):
