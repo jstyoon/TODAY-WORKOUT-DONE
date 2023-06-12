@@ -74,6 +74,8 @@ class Articles(commonModel):
     out_subcategory = models.ForeignKey(OutSubCategory, on_delete=models.CASCADE, blank=True, null=True)
     image = models.FileField(
         "이미지", upload_to='', blank=True, null=True) 
+    likes = models.ManyToManyField(User, blank=True, related_name="like_articles")
+    
     
     def __str__(self):
         return str(self.category)
@@ -90,6 +92,7 @@ class Comment(commonModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     article = models.ForeignKey(Articles, on_delete=models.CASCADE)
     content = models.TextField(max_length=100)
+    likes = models.ManyToManyField(User, blank=True, related_name="like_comments")
 
     def __str__(self):
         return self.content
