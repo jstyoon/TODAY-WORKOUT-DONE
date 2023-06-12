@@ -1,10 +1,12 @@
 from django.db import models
+
+
+# Create your models here.
+
 from django.utils import timezone
 from users.models import User, commonModel
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
-
-
 
 
 class Category(models.Model):
@@ -22,7 +24,6 @@ class Category(models.Model):
         
     def __str__(self):
         return str(self.category)
-
 
 
 class InSubCategory(models.Model):
@@ -58,7 +59,6 @@ class OutSubCategory(models.Model):
         return str(self.out_sub_category)
 
 
-
 class Articles(commonModel):
     class Meta:
         db_table = "Article"
@@ -79,18 +79,11 @@ class Articles(commonModel):
         return str(self.category)
 
 
-
-"""
-check_status값이 True값으로 전환될때 해당 시간을 저장함
-"""
 @receiver(pre_save, sender=Articles)
 def update_complete_at(sender, instance, **kwargs):
-            if instance.check_status:
-                instance.complete_at = timezone.now()
-
-
-
-
+  """ check_status값이 True값으로 전환될때 해당 시간을 저장함 """
+    if instance.check_status:
+        instance.complete_at = timezone.now()
 
 
 class Comment(commonModel):
