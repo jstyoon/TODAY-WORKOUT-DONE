@@ -10,10 +10,6 @@ from .models import Articles, Comment
 from .serializers import CommentSerializer, CommentCreateSerializer
 
 
-
-
-
-
 class ArticlesViews(APIView):
     def get(self, request):
         articles = Articles.objects.all()
@@ -28,8 +24,7 @@ class ArticlesViews(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-
+        
 class ArticlesDetailView(APIView):
 
     def get(self, request, article_id):
@@ -58,9 +53,7 @@ class ArticlesDetailView(APIView):
             return Response({"message": "삭제완료!"},status=status.HTTP_204_NO_CONTENT)
         else:
             return Response({"message": "권한이 없습니다!"},status=status.HTTP_400_BAD_REQUEST)
-          
-          
-          
+   
 class ArticleLikeView(APIView):
     def post(self, request, article_id):
         article = get_object_or_404(Articles, id=article_id)
@@ -72,7 +65,7 @@ class ArticleLikeView(APIView):
             return Response({"message":"좋아요 취소"}, status=status.HTTP_200_OK)
           
           
-          
+
 class CommentView(APIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     def get(self, request, article_id):
@@ -88,7 +81,7 @@ class CommentView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+
 
 class CommentDetailView(APIView):
     def put(self, request, article_id, comment_id):
@@ -108,6 +101,7 @@ class CommentDetailView(APIView):
 
 
     def delete(self, request, article_id, comment_id):
+
         try:
             comment = Comment.objects.get(id=comment_id)
         except Comment.DoesNotExist:
@@ -129,3 +123,11 @@ class CommentLikesView(APIView):
         else:
             comment.likes.add(request.user)
             return Response({"message":"좋아요 취소"}, status=status.HTTP_200_OK)
+
+        comment = get_object_or_404(Comment, id = comment_id)
+        if request.user == comment.user:
+            comment.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response("자신의 댓글만 삭제할 수 있습니다", status=status.HTTP_403_FORBIDDEN)
+
