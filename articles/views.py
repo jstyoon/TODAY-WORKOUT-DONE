@@ -126,11 +126,3 @@ class CommentLikesView(APIView):
         else:
             comment.likes.add(request.user)
             return Response({"message":"좋아요 취소"}, status=status.HTTP_200_OK)
-
-        comment = get_object_or_404(Comment, id = comment_id)
-        if request.user == comment.user:
-            comment.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        else:
-            return Response("자신의 댓글만 삭제할 수 있습니다", status=status.HTTP_403_FORBIDDEN)
-
