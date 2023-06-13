@@ -1,10 +1,16 @@
 from django.db import models
+<<<<<<< HEAD
 # from django.utils import timezone
+=======
+
+
+# Create your models here.
+
+from django.utils import timezone
+>>>>>>> develop
 from users.models import User, commonModel
 # from django.db.models.signals import pre_save
 # from django.dispatch import receiver
-
-
 
 
 class Category(models.Model):
@@ -22,7 +28,6 @@ class Category(models.Model):
         
     def __str__(self):
         return str(self.category)
-
 
 
 class InSubCategory(models.Model):
@@ -56,7 +61,6 @@ class OutSubCategory(models.Model):
         return self.get_out_sub_category_display()
 
 
-
 class Articles(commonModel):
     class Meta:
         db_table = "Article"
@@ -72,21 +76,38 @@ class Articles(commonModel):
     out_subcategory = models.ForeignKey(OutSubCategory, on_delete=models.CASCADE, blank=True, null=True)
     image = models.FileField(
         "이미지", upload_to='', blank=True, null=True) 
+    likes = models.ManyToManyField(User, blank=True, related_name="like_articles") # 게시물 좋아요
+    # likes = models.ManyToManyField(User, blank=True, related_name="like_articles", through='Feed_like') 개인 프로필에서 보이는 좋아요 한 글
+    
     
     def __str__(self):
         return str(self.category)
 
 
+<<<<<<< HEAD
 
 
 
 
+=======
+@receiver(pre_save, sender=Articles)
+def update_complete_at(sender, instance, **kwargs):
+#   """ check_status값이 True값으로 전환될때 해당 시간을 저장함 """
+    if instance.check_status:
+        instance.complete_at = timezone.now()
+>>>>>>> develop
 
 
 class Comment(commonModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     article = models.ForeignKey(Articles, on_delete=models.CASCADE)
     content = models.TextField(max_length=100)
+    likes = models.ManyToManyField(User, blank=True, related_name="like_comments")
 
     def __str__(self):
         return self.content
+
+# 개인 프로필에서 보이는 좋아요 한 글
+# class Feed_like(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+#     diary = models.ForeignKey(Articles, on_delete=models.CASCADE, null=True)
