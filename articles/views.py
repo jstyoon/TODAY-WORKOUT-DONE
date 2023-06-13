@@ -14,7 +14,7 @@ from .serializers import WeatherSerializer
 import requests
 import json
 from django.shortcuts import redirect
-import googlemaps
+# import googlemaps
 
 
 
@@ -111,21 +111,25 @@ class WeatherViews(APIView):
         res = requests.get(weather.url, params=weather.para)
         res_json = json.loads(res.content)
         items=res_json['response']['body']['items']['item']
+        print(items)
         response=redirect('/articles/weather/')
+        print(response)
         response.set_cookie('items', items)
-        return Response(f'{request.COOKIES.items}')
+        request.COOKIES.items
+        # print(cookie)
+        return response 
     
 
-class MapViews(APIView):
-    def get(self, request):
-        # serializer = WeatherSerializer()
-        weather = Weather()
-        res = requests.get(weather.url, params=weather.para)
-        res_json = json.loads(res.content)
-        items=res_json['response']['body']['items']['item']
-        response=redirect('/articles/weather/')
-        response.set_cookie('items', items)
-        return Response(f'{request.COOKIES.items}')
+# class MapViews(APIView):
+#     def get(self, request):
+#         # serializer = WeatherSerializer()
+#         weather = Weather()
+#         res = requests.get(weather.url, params=weather.para)
+#         res_json = json.loads(res.content)
+#         items=res_json['response']['body']['items']['item']
+#         response=redirect('/articles/weather/')
+#         response.set_cookie('items', items)
+#         return Response(f'{request.COOKIES.items}')
 
 # result = requests.post(url, data) # 해당 API에 요청을 보내며 데이터를 추출한다.
 #     result2 = json.loads(result.text)
