@@ -1,7 +1,7 @@
 from django.db import models
 from users.models import User, commonModel
 
-from . import local_settings
+from . import api_key_loader
 
 
 
@@ -44,12 +44,12 @@ class Comment(commonModel):
         return self.content
 class Weather(commonModel):
     url ='http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst'
-    para={'ServiceKey':local_settings.weather_key, 'pageNo':1,'numOfRows':'1000','dataType': 'JSON', 'base_date':'20230611','base_time':'1900','nx':'55','ny':'127'}
+    para={'ServiceKey':api_key_loader.weather_key, 'pageNo':1,'numOfRows':'1000','dataType': 'JSON', 'base_date':'20230612','base_time':'1900','nx':'55','ny':'127'}
     def __str__(self):
         return self.para
 
 class Map(commonModel):
-    url ='https://www.googleapis.com/geolocation/v1/geolocate?key={local_settings.map_key}'
+    url ='https://www.googleapis.com/geolocation/v1/geolocate?key={api_key_loader.map_key}'
     data = {
         'considerIp': True, # 현 IP로 데이터 추출
         }
