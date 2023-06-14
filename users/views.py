@@ -52,3 +52,33 @@ from users.models import User
 #             return Response({"message": "휴면 계정으로 전환되었습니다."}, status=status.HTTP_200_OK)
 #         else:
 #             return Response({"error": "권한이 없습니다."}, status=status.HTTP_400_BAD_REQUEST)
+
+from rest_framework.permissions import AllowAny
+from django.http import HttpResponseRedirect
+from allauth.account.models import EmailConfirmation, EmailConfirmationHMAC
+
+# 이메일 인증 확인 view
+class ConfirmEmailView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, *args, **kwargs):
+        self.object = confirmation = self.get_object()
+        confirmation.confirm(self.request)
+        return HttpResponseRedirect('/') # 인증성공
+
+    def get_object(self, queryset=None):
+        key = self.kwargs['key']
+        email_confirmation = EmailConfirmationHMAC.from_key(key)
+        if not email_confirmation:
+            if queryset is None:
+                queryset = self.get_queryset()
+            try:
+                email_confirmation = queryset.get(key=key.lower())
+            except EmailConfirmation.DoesNotExist:
+                return HttpResponseRedirect('/') # 인증실패
+        return email_confirmation
+
+    def get_queryset(self):
+        qs = EmailConfirmation.objects.all_valid()
+        qs = qs.select_related("email_address__user")
+        return qs

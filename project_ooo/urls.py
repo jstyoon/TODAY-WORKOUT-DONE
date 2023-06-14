@@ -23,5 +23,6 @@ urlpatterns = [
     # dj-rest-auth 
     path('users/', include('users.urls')),
     # allauth(외부인증)
-    # path('users/', include('allauth.urls')),
+    path("", include("allauth.account.urls")),
+    path('users/', include('allauth.urls')),
 ]
