@@ -42,20 +42,23 @@ class Comment(commonModel):
 
     def __str__(self):
         return self.content
-class Weather(commonModel):
-    url ='http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst'
-    para={'ServiceKey':api_key_loader.weather_key, 'pageNo':1,'numOfRows':'1000','dataType': 'JSON', 'base_date':'20230612','base_time':'1900','nx':'55','ny':'127'}
-    def __str__(self):
-        return self.para
+    
 
 class Map(commonModel):
-    url ='https://www.googleapis.com/geolocation/v1/geolocate?key={api_key_loader.map_key}'
+    url =f'https://www.googleapis.com/geolocation/v1/geolocate?key={api_key_loader.map_key}'
     data = {
         'considerIp': True, # 현 IP로 데이터 추출
         }
-    
-    
     def __str__(self):
         return self.data
+
+class Weather(commonModel):
+
+    url ='http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst'
+    para={'ServiceKey':api_key_loader.weather_key, 'pageNo':1,'numOfRows':'1000','dataType': 'JSON'}
+
+    def __str__(self):  
+        return self.para
+
 
     
