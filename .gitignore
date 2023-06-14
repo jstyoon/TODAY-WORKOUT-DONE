@@ -1,6 +1,7 @@
 # Created by https://www.toptal.com/developers/gitignore/api/django,windows,macos,python,pycharm,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=django,windows,macos,python,pycharm,visualstudiocode
 
+
 ###방기호 추가
 secrets.json
 templates
