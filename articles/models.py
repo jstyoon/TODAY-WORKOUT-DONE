@@ -84,10 +84,10 @@ class Articles(commonModel):
 
 @receiver(pre_save, sender=Articles)
 def update_complete_at(sender, instance, **kwargs):
-#   """ check_status값이 True값으로 전환될때 해당 시간을 저장함 """
+    """ check_status값이 True값으로 전환될때 해당 시간을 저장함 """
+
     if instance.check_status:
         instance.complete_at = timezone.now()
-
 
 class Comment(commonModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
