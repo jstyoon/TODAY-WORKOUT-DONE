@@ -137,7 +137,7 @@ class CommentLikesView(APIView):
 
 class WeatherView(APIView):
     def get(self, request):
-        # serializer = WeatherSerializer()
+
         weather = Weather()
         map = Map()
         now = datetime.datetime.now()
@@ -171,17 +171,11 @@ class WeatherView(APIView):
         items=res_json['response']['body']['items']['item']
         rain = {}
         temperature = {}
-        # for i in items:
-        #     if i['category'] == 'RN1':
-        #         rain['fcstValue'] = i['fcstValue']
-        #     if i['category'] == 'T1H':
-        #         temperature['fcstValue'] = i['fcstValue']
-        print(result2['location']['lat'])
+
+
         response=render(request, 'weather.html')
         response.set_cookie('items', items)
-        # response.set_cookie('rain', rain)
-        # response.set_cookie('temperature', temperature)
-        print(result2['location']['lat'])
+
         return response
     
     def post(self, request):
@@ -220,18 +214,5 @@ class WeatherView(APIView):
         return render(request, 'weather.html', {'rain' : items_dict[1]['obsrValue']})
     
 
-class MapView(APIView):
-    def get(self, request):
-        # serializer = WeatherSerializer()
-        map = Map()
-        result = requests.post(map.url, map.data)
-        result2 = json.loads(result.text)
-        return Response(f'{result2}')
 
-# result = requests.post(url, data) # 해당 API에 요청을 보내며 데이터를 추출한다.
-#     result2 = json.loads(result.text)
 
-#     lat = result2["location"]["lat"] # 현재 위치의 위도 추출
-#     lng = result2["location"]["lng"] # 현재 위치의 경도 추출
-#     gmaps = googlemaps.Client(local_settings.map_key)
-#     reverse_geocode_result = gmaps.reverse_geocode((lat, lng),language='ko')
