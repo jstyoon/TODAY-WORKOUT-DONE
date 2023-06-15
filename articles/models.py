@@ -1,12 +1,8 @@
 from django.db import models
-
-
-# Create your models here.
-
 from django.utils import timezone
 from users.models import User, commonModel
-from django.db.models.signals import pre_save
-from django.dispatch import receiver
+# from django.db.models.signals import pre_save
+# from django.dispatch import receiver
 
 
 class Category(models.Model):
@@ -27,7 +23,6 @@ class Category(models.Model):
 
 
 class InSubCategory(models.Model):
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
     in_sub_categories = (
         ('걷기', '실내 걷기'),
         ('뛰기', '트레드밀'),
@@ -41,11 +36,10 @@ class InSubCategory(models.Model):
     exercise_time = models.PositiveIntegerField("운동시간",default=0)
 
     def __str__(self):
-        return str(self.in_sub_category)
+        return self.in_sub_category
 
 
 class OutSubCategory(models.Model):
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
     out_sub_categories = (
         ('걷기', '실외 걷기'),
         ('뛰기', '야외 런닝'),
@@ -56,7 +50,7 @@ class OutSubCategory(models.Model):
     exercise_time = models.PositiveIntegerField("운동시간",default=0)
     
     def __str__(self):
-        return str(self.out_sub_category)
+        return self.get_out_sub_category_display()
 
 
 class Articles(commonModel):
@@ -82,11 +76,6 @@ class Articles(commonModel):
         return str(self.category)
 
 
-@receiver(pre_save, sender=Articles)
-def update_complete_at(sender, instance, **kwargs):
-#   """ check_status값이 True값으로 전환될때 해당 시간을 저장함 """
-    if instance.check_status:
-        instance.complete_at = timezone.now()
 
 
 class Comment(commonModel):
