@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     # django-allauth
     'allauth',
     'allauth.account',
+    'allauth.socialaccount',
     # django-cors-headers
     "corsheaders",
     # drf
