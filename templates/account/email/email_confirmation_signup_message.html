@@ -22,6 +22,10 @@
     .text-size-20 {
       font-size: 1.25rem;
     }
+    .logo img {
+      width: 100px; /* 로고 이미지의 가로 폭을 100픽셀로 지정 */
+      height: auto; /* 이미지의 세로를 그에 맞게 자동 조정 */
+    }
   </style>
 </head>
 
@@ -29,14 +33,20 @@
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-sm-8 col-md-6">
+          <div class="emb-content-inner emb-js-content-inner">
+              <div ng-if="logoImage" class="ng-scope">
+                  <img class="emb-js-header" emb-disable-drag="" ng-src="https://img.createsend1.com/resize/ei/y/97/10C/ACD/csimport/Logo.png?w=600" width="141" height="141" ng-style="{ 'max-width': block.width }" unselectable="on" draggable="false" src="https://img.createsend1.com/resize/ei/y/97/10C/ACD/csimport/Logo.png?w=600" style="max-width: 141px;">
+              </div>
+          </div>
+        </div>
+        </div>
         <div class="card">
           <div class="card-body d-flex flex-column">
             <h5 class="card-title text-center">아래의 버튼을 눌러 계정을 인증하고, 로그인해주세요.</h5>
             <div class="d-flex flex-column align-items-center justify-content-center">
               <p class="card-text mb-3 align-self-center text-size-20">귀하의 아이디는 <span style="font-weight:bold;">{{ user_display }}</span> 입니다.</p>
-              <a href="{{ activate_url }}" class="btn btn-primary btn-lg align-self-center text-size-20">인증 버튼 텍스트</a>
+              <a href="{{ activate_url }}" style="background-color: #0066CC; border:1px solid #0066CC; border-radius:3px; color: #ffffff; display: inline-block; font-size: 14px; font-weight: bold; padding: 12px 25px; text-align: center; text-decoration: none; -webkit-text-size-adjust: none; mso-hide: all;">계정 인증하기</a>
             </div>
-            <a href="{{ activate_url }}" style="background-color: #0066CC; border:1px solid #0066CC; border-radius:3px; color: #ffffff; display: inline-block; font-size: 14px; font-weight: bold; padding: 12px 25px; text-align: center; text-decoration: none; -webkit-text-size-adjust: none; mso-hide: all;">계정 인증하기</a>
           </div>
         </div>
       </div>
