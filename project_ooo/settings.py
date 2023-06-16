@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     # django-allauth
     'allauth',
     'allauth.account',
+    'allauth.socialaccount',
     # django-cors-headers
     "corsheaders",
     # drf
@@ -74,7 +75,9 @@ ROOT_URLCONF = 'project_ooo.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates'),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -229,9 +232,9 @@ EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = '/' # 사이트와 관련한 자
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1
-ACCOUNT_EMAIL_SUBJECT_PREFIX = '[오운완 이메일 인증]' #이메일 제목앞에 붙일내용
+ACCOUNT_EMAIL_SUBJECT_PREFIX = '[오운완]' #이메일 제목앞에 붙일내용
 
-THENTICATION_BACKENDS = [
+AUTHENTICATION_BACKENDS = [
     # Needed to login by username in Django admin, regardless of `allauth`
     'django.contrib.auth.backends.ModelBackend',
 
