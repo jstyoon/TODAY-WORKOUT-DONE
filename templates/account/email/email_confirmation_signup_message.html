@@ -1,0 +1,52 @@
+{% load account %}
+{% load i18n %}
+{% block content %}
+{% autoescape off %}
+{% user_display user as user_display %}
+{% blocktrans with site_name=current_site.name site_domain=current_site.domain %}
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <style>
+    .card {
+      border: none;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+    .card-body {
+      padding: 2rem;
+    }
+    .text-size-20 {
+      font-size: 1.25rem;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-sm-8 col-md-6">
+        <div class="card">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title text-center">아래의 버튼을 눌러 계정을 인증하고, 로그인해주세요.</h5>
+            <div class="d-flex flex-column align-items-center justify-content-center">
+              <p class="card-text mb-3 align-self-center text-size-20">귀하의 아이디는 <span style="font-weight:bold;">{{ user_display }}</span> 입니다.</p>
+              <a href="{{ activate_url }}" class="btn btn-primary btn-lg align-self-center text-size-20">인증 버튼 텍스트</a>
+            </div>
+            <a href="{{ activate_url }}" style="background-color: #0066CC; border:1px solid #0066CC; border-radius:3px; color: #ffffff; display: inline-block; font-size: 14px; font-weight: bold; padding: 12px 25px; text-align: center; text-decoration: none; -webkit-text-size-adjust: none; mso-hide: all;">계정 인증하기</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
+
+{% endblocktrans %}
+{% endautoescape %}
+{% endblock %}
+
