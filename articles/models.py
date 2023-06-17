@@ -1,4 +1,5 @@
 from django.db import models
+from . import api_key_loader
 from django.utils import timezone
 from users.models import User, commonModel
 # from django.db.models.signals import pre_save
@@ -85,6 +86,26 @@ class Comment(commonModel):
 
     def __str__(self):
         return self.content
+    
+
+class Map(commonModel):
+    url =f'https://www.googleapis.com/geolocation/v1/geolocate?key={api_key_loader.map_key}'
+    data = {
+        'considerIp': True, # 현 IP로 데이터 추출
+        }
+    def __str__(self):
+        return self.data
+
+class Weather(commonModel):
+
+    url ='http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst'
+    para={'ServiceKey':api_key_loader.weather_key, 'pageNo':1,'numOfRows':'1000','dataType': 'JSON'}
+
+    def __str__(self):  
+        return self.para
+
+
+    
 
 # 개인 프로필에서 보이는 좋아요 한 글
 # class Feed_like(models.Model):
