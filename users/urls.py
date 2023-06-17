@@ -1,13 +1,18 @@
-from django.urls import path, include
+from django.urls import path, include, re_path
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
 from users import views
+from dj_rest_auth.registration.views import VerifyEmailView
 
 urlpatterns = [
     path('dj-rest-auth/', include('dj_rest_auth.urls')),
     path('dj-rest-auth/registration/', include('dj_rest_auth.registration.urls')),
+    
+    path("verify-email/", VerifyEmailView.as_view(), name="rest_verify_email"),
+    path("account-confirm-email/",VerifyEmailView.as_view(),name="account_confirm_email_sent",),
+    path("account-confirm-email/<key>/",VerifyEmailView.as_view(),name="account_confirm_email",),
 ]
 
 # 상세 주소
