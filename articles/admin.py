@@ -1,4 +1,5 @@
 from django.contrib import admin
+
 from articles.models import Comment, Articles, Category, InSubCategory, OutSubCategory
 
 admin.site.register(Comment)

@@ -77,7 +77,6 @@ class Articles(commonModel):
 
 
 
-
 class Comment(commonModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     article = models.ForeignKey(Articles, on_delete=models.CASCADE)
