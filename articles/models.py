@@ -113,7 +113,7 @@ class Map(commonModel):
 
 class Weather(commonModel):
 
-    url ='http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst'
+    url ='http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst'
     para={'ServiceKey':api_key_loader.weather_key, 'pageNo':1,'numOfRows':'1000','dataType': 'JSON'}
 
     def __str__(self):  

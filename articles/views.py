@@ -147,7 +147,8 @@ class WeatherView(APIView):
             month = str(month)
             month = '0' + month
         base_date = str(now.year) + str(month) + str(now.day)
-        base_time = str(now.hour-1) + '00'
+        # base_time = str(now.hour-1) + '00'
+        base_time = '05' + '30'
         print(base_date)
         print(base_time)
 
@@ -166,52 +167,62 @@ class WeatherView(APIView):
         params['base_time'] = base_time
         print(result2['location']['lat'])
         res = requests.get(weather.url, params)
+        # res.json().decode('utf-8')
         res_json = json.loads(res.content)
         print(result2['location']['lat'])
         items=res_json['response']['body']['items']['item']
-        rain = {}
-        temperature = {}
+        rain = [] # 강수 정보만 쿠키에 담으려고 합니다.
+        for i in items:
+            if i['category'] == 'PTY':
+                print(i['fcstValue'])
+            # i['fcstValue'] = i['fcstValue'].decode('utf-8')
+                rain.append({i['fcstTime'] : i['fcstValue']})
+            # i['fcstValue'] = i['fcstValue'].decode('euc-kr')
+            # if i['fcstValue'] == '강수없음':
+            #     i['fcstValue'] = 0
 
-
-        response=render(request, 'weather.html')
-        response.set_cookie('items', items)
-
+        print('rain',rain[0]['0600'])
+        response=Response(rain, status=status.HTTP_200_OK)
+        print(rain[0])
+        response.set_cookie('rain', rain)
         return response
+
+        # response=render(request, 'weather.html')
+        # response.set_cookie('rain', rain)
+        # # print(request.COOKIES['items'])
+        # print(response)
+        # return response
     
     def post(self, request):
-        items = request.COOKIES['items']
+        rain = request.COOKIES.get('rain')
+        print('rain', rain)
+        rain_list = rain.split('}, {')
+        # print(items_list)
+        rain_list[0] = re.sub('\[\{', '', rain_list[0])
+        rain_list[5] = re.sub('\}\]', '', rain_list[5])
         
-        items_list = items.split('}, {')
-        items_list[0] = re.sub('\[\{', '', items_list[0])
-        items_list[7] = re.sub('\}\]', '', items_list[7])
-        j = 0
-        items_dict = [] #api 데이터를 딕셔너리로 담을 곳
+        # j = 0
+        # rain_dict = [] #api 데이터를 딕셔너리로 담을 곳
+        # # print(items_dict)
+        # #request.COOKIES['items']가 문자열 형식으로 불러와져서 그걸 딕셔너리로 담아내는 과정.
+        # #너무 지저분해서 나중에 코드를 고쳐야 할 것 같음.
+        # dict_tmp = {}
+        # keys = []
+        # values = []
+        # print('5', rain_list[5])
+        # for i in rain_list:
+            # print(i)
+        # data_list = i.split(", ")
+        data_dict = {} #'' 제거한 거 저장할 곳
+        for data in rain_list:
+            print('data' , data)
+            pair = data.split(": ")
+            pair[0] = re.sub(r'\'','', pair[0])
+            pair[1] = re.sub(r'\'','', pair[1])
+            data_dict[pair[0]] = pair[1]
 
-        #request.COOKIES['items']가 문자열 형식으로 불러와져서 그걸 딕셔너리로 담아내는 과정.
-        #너무 지저분해서 나중에 코드를 고쳐야 할 것 같음.
-        dict_tmp = {}
-        keys = []
-        values = []
-        for i in items_list:
-            
-            data_list = i.split(", ")
-            for data in data_list:
-                print(data)
-                pair = data.split(": ")
-                pair[0] = re.sub(r'\'','', pair[0])
-                pair[1] = re.sub(r'\'','', pair[1])
-                keys.append(pair[0])
-                values.append(pair[1])
-            k = 0
-            for key in keys:
-                dict_tmp[key] = values[k]
-                items_dict.append(dict_tmp)
-                k = k+1
-            j = j + 1
-
-
-        
-        return render(request, 'weather.html', {'rain' : items_dict[1]['obsrValue']})
+        return Response(data_dict, status=status.HTTP_200_OK)
+        return render(request, 'weather.html', {'rain' : data_dict})
     
 
 
