@@ -165,7 +165,7 @@ class WeatherView(APIView):
         if month < 10:
             month = str(month)
             month = '0' + month
-        base_date = str(now.year) + str(month) + str(now.day)
+        base_date = str(now.year) + str(month) + str(now.day - 1)
         # base_time = str(now.hour-1) + '00'
         base_time = '05' + '30'
         print(base_date)
