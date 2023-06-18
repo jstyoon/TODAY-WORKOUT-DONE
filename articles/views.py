@@ -9,15 +9,13 @@ from articles.serializers import ArticlesSerializer, ArticlesCreateSerializer, A
 from .models import Articles, Comment
 from .serializers import CommentSerializer, CommentCreateSerializer
 
-from .models import Weather, Map
-from .serializers import WeatherSerializer
 import requests
 import json
 from django.shortcuts import redirect
 import googlemaps
 import re
 from .func import grid
-
+from . import api_key_loader
 
 #feed는 유저들의 공개 게시글만
 class FeedViews(APIView):
@@ -156,92 +154,70 @@ class CommentLikesView(APIView):
 
 class WeatherView(APIView):
     def get(self, request):
+        if request.COOKIES.get('rain') == None:
+            weather_url ='http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst'
+            weather_para ={}
+            
+            map_url =f'https://www.googleapis.com/geolocation/v1/geolocate?key={api_key_loader.map_key}'
+            map_data = {
+                'considerIp': True, # 현 IP로 데이터 추출
+                }
+            
+            now = datetime.datetime.now()
+            not_now = now - datetime.timedelta(minutes=30)
+            year = not_now.year
+            month = not_now.month
+            day = not_now.day
+            hour = not_now.hour
+            minute = not_now.minute
+            if month < 10:
+                month = str(month)
+                month = '0' + month
+            
+            if minute < 10:
+                minute = str(minute)
+                minute = '0' + minute
 
-        weather = Weather()
-        map = Map()
-        now = datetime.datetime.now()
-        month = now.month
-        
-        if month < 10:
-            month = str(month)
-            month = '0' + month
-        base_date = str(now.year) + str(month) + str(now.day)
-        # base_time = str(now.hour-1) + '00'
-        base_time = '05' + '30'
-        print(base_date)
-        print(base_time)
+            if hour < 10:
+                hour = str(hour)
+                hour = '0' + hour
 
-        result = requests.post(map.url, map.data)
-        result2 = json.loads(result.text)
-        print(result2['location']['lat'])
-        rs = grid(result2['location']['lat'],result2['location']['lng'])
-        nx = result2['location']['lat']
-        nx = rs['x']
-        ny = result2['location']['lng']
-        ny = rs['y']
-        params=weather.para
-        params['nx'] = nx
-        params['ny'] = ny
-        params['base_date'] = base_date
-        params['base_time'] = base_time
-        print(result2['location']['lat'])
-        res = requests.get(weather.url, params)
-        # res.json().decode('utf-8')
-        res_json = json.loads(res.content)
-        print(result2['location']['lat'])
-        items=res_json['response']['body']['items']['item']
-        rain = [] # 강수 정보만 쿠키에 담으려고 합니다.
-        for i in items:
-            if i['category'] == 'PTY':
-                print(i['fcstValue'])
-            # i['fcstValue'] = i['fcstValue'].decode('utf-8')
-                rain.append({i['fcstTime'] : i['fcstValue']})
-            # i['fcstValue'] = i['fcstValue'].decode('euc-kr')
-            # if i['fcstValue'] == '강수없음':
-            #     i['fcstValue'] = 0
+            base_date = str(year) + str(month) + str(day)
 
-        print('rain',rain[0]['0600'])
-        response=Response(rain, status=status.HTTP_200_OK)
-        print(rain[0])
-        response.set_cookie('rain', rain)
-        return response
+            base_time = str(hour) + str(minute)
 
-        # response=render(request, 'weather.html')
-        # response.set_cookie('rain', rain)
-        # # print(request.COOKIES['items'])
-        # print(response)
-        # return response
-    
-    def post(self, request):
-        rain = request.COOKIES.get('rain')
-        print('rain', rain)
-        rain_list = rain.split('}, {')
-        # print(items_list)
-        rain_list[0] = re.sub('\[\{', '', rain_list[0])
-        rain_list[5] = re.sub('\}\]', '', rain_list[5])
-        
-        # j = 0
-        # rain_dict = [] #api 데이터를 딕셔너리로 담을 곳
-        # # print(items_dict)
-        # #request.COOKIES['items']가 문자열 형식으로 불러와져서 그걸 딕셔너리로 담아내는 과정.
-        # #너무 지저분해서 나중에 코드를 고쳐야 할 것 같음.
-        # dict_tmp = {}
-        # keys = []
-        # values = []
-        # print('5', rain_list[5])
-        # for i in rain_list:
-            # print(i)
-        # data_list = i.split(", ")
-        data_dict = {} #'' 제거한 거 저장할 곳
-        for data in rain_list:
-            print('data' , data)
-            pair = data.split(": ")
-            pair[0] = re.sub(r'\'','', pair[0])
-            pair[1] = re.sub(r'\'','', pair[1])
-            data_dict[pair[0]] = pair[1]
+            print(base_date)
+            print(base_time)
 
-        return Response(data_dict, status=status.HTTP_200_OK)
-        return render(request, 'weather.html', {'rain' : data_dict})
+            result = requests.post(map_url, map_data)
+            result2 = json.loads(result.text)
+
+            rs = grid(result2['location']['lat'],result2['location']['lng']) # 
+            nx = rs['x']
+            ny = rs['y']
+
+            weather_para={'ServiceKey':api_key_loader.weather_key, 'pageNo':1,'numOfRows':'1000','dataType': 'JSON', 'nx' : nx, 'ny' : ny, 'base_date' : base_date, 'base_time' : base_time}
+
+            res = requests.get(weather_url, weather_para)
+            res_json = json.loads(res.content)
+
+            items=res_json['response']['body']['items']['item']
+            rain = [] # 강수 정보만 쿠키에 담으려고 합니다.
+            for i in items:
+                if i['category'] == 'PTY':
+                    rain.append({i['fcstTime'] : i['fcstValue']})
+
+
+            response=Response(rain, status=status.HTTP_200_OK)
+            response.set_cookie('rain', rain, max_age=300)
+
+            return response
+        else:
+            rain = request.COOKIES.get('rain')
+            response=Response(rain, status=status.HTTP_200_OK)
+            return response
+
+
     
 
 
