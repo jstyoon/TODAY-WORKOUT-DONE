@@ -218,7 +218,5 @@ class WeatherView(APIView):
             return response
 
 
-    
-
 
 
