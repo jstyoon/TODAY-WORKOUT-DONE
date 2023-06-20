@@ -5,5 +5,5 @@ class ArticlesConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'articles'
 
-    # def ready(self):
-    #     import articles.signals
+    def ready(self):
+        import articles.signals

@@ -33,7 +33,7 @@ class InSubCategory(models.Model):
         ('코어', '실내 코어운동'),
     )
     in_sub_category = models.CharField("상세 운동종류",max_length=10,choices=in_sub_categories)
-    exercise_time = models.PositiveIntegerField("운동시간",default=0)
+
 
     def __str__(self):
         return self.in_sub_category
@@ -47,7 +47,7 @@ class OutSubCategory(models.Model):
         ('구기', '구기종목'),
     )
     out_sub_category = models.CharField("상세 운동종류",max_length=10,choices=out_sub_categories)
-    exercise_time = models.PositiveIntegerField("운동시간",default=0)
+
     
     def __str__(self):
         return self.get_out_sub_category_display()
@@ -66,8 +66,9 @@ class Articles(commonModel):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, blank=True, null=True)
     in_subcategory = models.ForeignKey(InSubCategory, on_delete=models.CASCADE, blank=True, null=True)
     out_subcategory = models.ForeignKey(OutSubCategory, on_delete=models.CASCADE, blank=True, null=True)
+    exercise_time = models.PositiveIntegerField("운동시간",default=0,blank=True, null=True)
     image = models.FileField(
-        "이미지", upload_to='', blank=True, null=True) 
+        "이미지", upload_to='uploads/%Y/%m/%d', blank=True, null=True) 
     likes = models.ManyToManyField(User, blank=True, related_name="like_articles") # 게시물 좋아요
     # likes = models.ManyToManyField(User, blank=True, related_name="like_articles", through='Feed_like') 개인 프로필에서 보이는 좋아요 한 글
     
