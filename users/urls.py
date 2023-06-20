@@ -5,20 +5,14 @@ from rest_framework_simplejwt.views import (
 )
 from users import views
 from dj_rest_auth.registration.views import VerifyEmailView
-from users.views import ConfirmEmailView
 
 urlpatterns = [
     path('dj-rest-auth/', include('dj_rest_auth.urls')),
     path('dj-rest-auth/registration/', include('dj_rest_auth.registration.urls')),
     
-    path('allauth/', include('allauth.urls')),
-
-    # 유효한 이메일이 유저에게 전달
-    re_path(r'^allauth/confirm-email/$', VerifyEmailView.as_view(), name='account_email_verification_sent'),
-    
-    # 유저가 클릭한 이메일(=링크) 확인
-    re_path(r'^allauth/confirm-email/(?P<key>[-:\w]+)/$', ConfirmEmailView.as_view(), name='account_confirm_email'),
-    path('users/allauth/confirm-email/', ConfirmEmailView.as_view(), name='confirm_email'),
+    path("verify-email/", VerifyEmailView.as_view(), name="rest_verify_email"),
+    path("account-confirm-email/",VerifyEmailView.as_view(),name="account_confirm_email_sent",),
+    path("account-confirm-email/<key>/",VerifyEmailView.as_view(),name="account_confirm_email",),
 ]
 
 # 상세 주소
