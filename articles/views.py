@@ -92,6 +92,14 @@ class ArticleLikesView(APIView):
         else:
             article.likes.add(request.user)
             return Response({"message":"🧡"}, status=status.HTTP_200_OK)
+        
+class ArticleUpdateLikeCount(APIView):
+    def post(self, request, article_id):
+        article = get_object_or_404(Articles, id=article_id)
+        increment = request.data.get('increment', 0)
+        article.like_count += increment
+        article.save()
+        return Response({"articleLikeCount": article.like_count}, status=status.HTTP_200_OK)
           
 
 class CommentView(APIView):
@@ -148,9 +156,10 @@ class CommentLikesView(APIView):
         comment = get_object_or_404(Comment, id=comment_id)
         if request.user in comment.likes.all():
             comment.likes.remove(request.user)
-            return Response({"message":"좋아요"}, status=status.HTTP_200_OK)
+            return Response({"message":"좋아요 취소"}, status=status.HTTP_200_OK)
         else:
-            return Response("자신의 댓글만 삭제할 수 있습니다", status=status.HTTP_403_FORBIDDEN)
+            comment.likes.add(request.user)
+            return Response({"message":"좋아요"}, status=status.HTTP_200_OK)
 
 class WeatherView(APIView):
     def get(self, request):
