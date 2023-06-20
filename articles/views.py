@@ -90,10 +90,10 @@ class ArticleLikesView(APIView):
         article = get_object_or_404(Articles, id=article_id)
         if request.user in article.likes.all():
             article.likes.remove(request.user)
-            return Response({"message":"좋아요"}, status=status.HTTP_200_OK)
+            return Response({"message":"🤍"}, status=status.HTTP_200_OK)
         else:
             article.likes.add(request.user)
-            return Response({"message":"좋아요 취소"}, status=status.HTTP_200_OK)
+            return Response({"message":"🧡"}, status=status.HTTP_200_OK)
           
 
 class CommentView(APIView):
