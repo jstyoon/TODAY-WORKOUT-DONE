@@ -241,3 +241,6 @@ AUTHENTICATION_BACKENDS = [
     # `allauth` specific authentication methods, such as login by e-mail
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
+
+ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = 'http://127.0.0.1:8000/users/allauth/login/' #로그인한 사용자가 없는 경우 이메일 확인 성공 후 지정된 URL로 리디렉션
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = False #	기본적으로 사용자는 로그인하지 않고 ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL로 리디렉션됩니다. "True"인 경우 사용자는 이메일 주소를 확인한 후 자동으로 로그인합니다
