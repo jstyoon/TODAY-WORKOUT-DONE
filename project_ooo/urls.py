@@ -26,7 +26,7 @@ urlpatterns = [
     path('users/', include('users.urls')),
     # allauth(외부인증)
     # path("", include("allauth.account.urls")),
-    path('accounts/', include('allauth.urls')),
+    # path('accounts/', include('allauth.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL,
