@@ -65,7 +65,7 @@ class User(AbstractBaseUser):
 
     USERNAME_FIELD = 'username'
     # id로 사용 할 필드 지정
-    REQUIRED_FIELDS = ['email']
+    REQUIRED_FIELDS = [] # email 
     # user 생성시 입력하는 필드 지정 (id, pw 제외)
     objects = UserManager()
     # custom user 생성에 필요한 변수 선언

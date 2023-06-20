@@ -1,4 +1,5 @@
 from django.db import models
+
 from django.utils import timezone
 from users.models import User, commonModel
 # from django.db.models.signals import pre_save
@@ -85,6 +86,13 @@ class Comment(commonModel):
 
     def __str__(self):
         return self.content
+    
+
+
+
+
+
+    
 
 # 개인 프로필에서 보이는 좋아요 한 글
 # class Feed_like(models.Model):

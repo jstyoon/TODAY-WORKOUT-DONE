@@ -144,8 +144,8 @@ USE_TZ = True
 STATIC_ROOT = BASE_DIR /  "static" 
 STATIC_URL = '/static/'
 
-
-MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+# MEDIA_ROOT = BASE_DIR / "media"
 MEDIA_URL = "/media/"
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -229,8 +229,8 @@ URL_FRONT = 'http://****' # 공개적인 웹페이지가 있다면 등록
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True # 유저가 받은 링크를 클릭하면 회원가입 완료되게끔
 
 EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = '/' # 사이트와 관련한 자동응답을 받을 이메일 주소,'webmaster@localhost'
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_EMAIL_REQUIRED = False ####### email없이 로그인 가능하게 True -> False 변경
+ACCOUNT_EMAIL_VERIFICATION = "none" ####### 우선 email없이 로그인 가능하게 mandatory -> none 변경 
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1
 ACCOUNT_EMAIL_SUBJECT_PREFIX = '[오운완]' #이메일 제목앞에 붙일내용
 
@@ -241,3 +241,5 @@ AUTHENTICATION_BACKENDS = [
     # `allauth` specific authentication methods, such as login by e-mail
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
+
+ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = 'http://127.0.0.1:8000/users/allauth/login/' #로그인한 사용자가 없는 경우 이메일 확인 성공 후 지정된 URL로 리디렉션
