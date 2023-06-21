@@ -28,7 +28,6 @@ def grid(v1, v2) :
     ro = math.tan(math.pi * 0.25 + olat * 0.5)
     ro = re * sf / math.pow(ro, sn);
     rs = {}
-    print("v1",v1)
     ra = math.tan(math.pi * 0.25 + (v1) * DEGRAD * 0.5)
     ra = re * sf / math.pow(ra, sn)
 
@@ -58,7 +57,6 @@ def exercise_recommendation(weather, index) : #운동 추천 함수
         else:
             return out_recommendation
     for i in range(index, index+2): # 1시간 뒤까지 판단.
-        print(list(weather[i].values())[0])
         if list(weather[index].values())[0] != '0': #비소식이 있음.
             return in_recommendation
         
