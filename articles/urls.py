@@ -13,7 +13,6 @@ urlpatterns = [
 
     path('<int:article_id>/like_article/',
          views.ArticleLikesView.as_view()),
-    path('<int:article_id>/update_like_count/', views.ArticleUpdateLikeCount.as_view()),
     path('comment/<int:article_id>/', views.CommentView.as_view()),
     path('comment/<int:article_id>/<int:comment_id>/',
          views.CommentDetailView.as_view()),

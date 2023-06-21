@@ -49,8 +49,11 @@ class ArticlesDetailView(APIView):
     #게시글 상세보기 (댓글 가능)
     def get(self, request, article_id):
         articles = get_object_or_404(Articles, id=article_id)
+        is_liked = True if request.user in articles.likes.all() else False # 좋아요 여부에 따라 T/F 값을 출력하는 변수
         serializer = ArticlesCreateSerializer(articles)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        res_data = serializer.data
+        res_data.update({'is_liked': is_liked}) # serializer를 거친 데이터에 is_liked값 저장
+        return Response(res_data, status=status.HTTP_200_OK) # 각 article에 대한 각 사용자의 좋아요 여부까지 DB에 저장
     
 
 
@@ -84,22 +87,43 @@ class ArticlesDetailView(APIView):
 
           
 class ArticleLikesView(APIView):
-    def post(self, request, article_id):
+
+    def get(self, request, article_id):
         article = get_object_or_404(Articles, id=article_id)
+        fluctuation = article.likes.count() # ArticlesDetailView에서 저장한 해당 아티클의 좋아요 갯수
         if request.user in article.likes.all():
-            article.likes.remove(request.user)
-            return Response({"message":"🤍"}, status=status.HTTP_200_OK)
+            article.like_count = fluctuation
+            article.save()
+            return Response({"message":"🧡", "fluctuation": article.like_count}, status=status.HTTP_200_OK)
         else:
-            article.likes.add(request.user)
-            return Response({"message":"🧡"}, status=status.HTTP_200_OK)
-        
-class ArticleUpdateLikeCount(APIView):
+            article.like_count = fluctuation
+            article.save()
+            return Response({"message":"🤍", "fluctuation": article.like_count}, status=status.HTTP_200_OK)
+
     def post(self, request, article_id):
         article = get_object_or_404(Articles, id=article_id)
-        increment = request.data.get('increment', 0)
-        article.like_count += increment
-        article.save()
-        return Response({"articleLikeCount": article.like_count}, status=status.HTTP_200_OK)
+        fluctuation = article.likes.count()
+        print(fluctuation)
+        if not request.user.is_authenticated:
+            return Response("로그인이 필요합니다.", status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            if request.user in article.likes.all():
+                fluctuation -= 1
+                if fluctuation < 0:
+                    fluctuation = 0
+                article.like_count = fluctuation
+                article.likes.remove(request.user)
+                article.save()
+                return Response({"message":"🤍", "fluctuation": article.like_count}, status=status.HTTP_200_OK)
+            else:
+                fluctuation += 1
+                article.like_count = fluctuation
+                article.likes.add(request.user)
+                article.save()
+                return Response({"message":"🧡", "fluctuation": article.like_count}, status=status.HTTP_200_OK)
+        
+
+
           
 
 class CommentView(APIView):
