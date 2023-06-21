@@ -1,5 +1,5 @@
-import math
-
+import math, random
+from .models import InSubCategory, OutSubCategory
 def grid(v1, v2) :
  
     RE = 6371.00877 # 지구 반경(km)
@@ -26,8 +26,8 @@ def grid(v1, v2) :
     sf = math.pow(sf, sn) * math.cos(slat1) / sn
     ro = math.tan(math.pi * 0.25 + olat * 0.5)
     ro = re * sf / math.pow(ro, sn);
-    rs = {};
-
+    rs = {}
+    print("v1",v1)
     ra = math.tan(math.pi * 0.25 + (v1) * DEGRAD * 0.5)
     ra = re * sf / math.pow(ra, sn)
 
@@ -40,3 +40,26 @@ def grid(v1, v2) :
     rs['x'] = math.floor(ra * math.sin(theta) + XO + 0.5)
     rs['y'] = math.floor(ro - ra * math.cos(theta) + YO + 0.5)
     return rs
+
+def exercise_recommendation(weather, index) :
+    in_cat = InSubCategory()
+    out_cat = OutSubCategory()
+    category = []
+    category.append(in_cat.in_sub_categories) # weather[i].key != 0
+    in_recommendation = category[0][random.randrange(0,len(category[0]))][1]
+
+    category.append(out_cat.out_sub_categories) # weather[i].key == 0 일때
+    out_recommendation = category[1][random.randrange(0,len(category[1]))][1]
+    if index+1 == 6 :
+        if list(weather[index].values())[0] != '0':
+            tmp_dict = list(weather[index].values())
+            return in_recommendation
+        else:
+            return out_recommendation
+    for i in range(index, index+2): # 1시간 뒤까지 판단.
+        print(list(weather[i].values())[0])
+        if list(weather[index].values())[0] != '0': #비소식이 있음.
+            return in_recommendation
+        
+    return out_recommendation
+        
