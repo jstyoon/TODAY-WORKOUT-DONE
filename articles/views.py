@@ -14,7 +14,7 @@ import json
 from django.shortcuts import redirect
 import googlemaps
 import re
-from .func import grid
+from .func import grid, exercise_recommendation
 from . import api_key_loader
 
 #feed는 유저들의 공개 게시글만
@@ -155,6 +155,7 @@ class CommentLikesView(APIView):
 class WeatherView(APIView):
     def get(self, request):
         if request.COOKIES.get('rain') == None:
+            print(request.COOKIES.get('rain'))
             weather_url ='http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst'
             weather_para ={}
             
@@ -203,20 +204,131 @@ class WeatherView(APIView):
 
             items=res_json['response']['body']['items']['item']
             rain = [] # 강수 정보만 쿠키에 담으려고 합니다.
+            rain_amount = [] # 강수량
+            temperature = []
             for i in items:
                 if i['category'] == 'PTY':
                     rain.append({i['fcstTime'] : i['fcstValue']})
-
-
-            response=Response(rain, status=status.HTTP_200_OK)
+                if i['category'] == 'RN1':
+                    rain_amount.append(i['fcstValue'].encode('utf-8'))
+                if i['category'] == 'T1H':
+                    temperature.append(i['fcstValue'].encode('utf-8'))
+            recommendation = []
+            for i in range(0,6):
+                recommendation.append(exercise_recommendation(rain, i).encode('utf-8'))
+            
+            result = []
+            result.append(rain)
+            result.append(recommendation)
+            result.append(temperature)
+            result.append(rain_amount)
+            response=Response(result, status=status.HTTP_200_OK)
             response.set_cookie('rain', rain, max_age=300)
-
+            response.set_cookie('recommendation', recommendation, max_age=300)
+            response.set_cookie('rain_amount', rain_amount, max_age=300)
+            response.set_cookie('temperature', temperature, max_age=300)
+            print(request.COOKIES.get('recommendation'))
+        
             return response
         else:
             rain = request.COOKIES.get('rain')
+            print(request.COOKIES.get('recommendation'))
+            recommendation = request.COOKIES.get('recommendation')
+            rain_amount = request.COOKIES.get('rain_amount')
+            temperature = request.COOKIES.get('temperature')
             response=Response(rain, status=status.HTTP_200_OK)
             return response
+    
+    def post(self, request):
+        print("post")
+        if request.COOKIES.get('rain_amount') == None:
+            print("it's rainy day")
+            weather_url ='http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst'
+            weather_para ={}
+            
+            
+            now = datetime.datetime.now()
+            not_now = now - datetime.timedelta(minutes=30)
+            year = not_now.year
+            month = not_now.month
+            day = not_now.day
+            hour = not_now.hour
+            minute = not_now.minute
+            if month < 10:
+                month = str(month)
+                month = '0' + month
+            
+            if minute < 10:
+                minute = str(minute)
+                minute = '0' + minute
 
+            if hour < 10:
+                hour = str(hour)
+                hour = '0' + hour
+
+            base_date = str(year) + str(month) + str(day)
+
+            base_time = str(hour) + str(minute)
+
+            print(base_date)
+            print(base_time)
+            req = {}
+            req = json.loads(request.body)
+            lat = req
+            print("ehllo")
+            print(lat)
+            # latitude = request.POST.get(lat['lat'])
+            # longitude = request.POST.get(lat['lat'])
+            # print("longitude",longitude, latitude)
+            rs = grid(35,127)
+            nx = rs['x']
+            ny = rs['y']
+
+            weather_para={'ServiceKey':api_key_loader.weather_key, 'pageNo':1,'numOfRows':'1000','dataType': 'JSON', 'nx' : nx, 'ny' : ny, 'base_date' : base_date, 'base_time' : base_time}
+
+            res = requests.get(weather_url, weather_para)
+            res_json = json.loads(res.content)
+
+            items=res_json['response']['body']['items']['item']
+            rain = [] # 강수 정보만 쿠키에 담으려고 합니다.
+            rain_amount = [] # 강수량
+            temperature = []
+            for i in items:
+                if i['category'] == 'PTY':
+                    rain.append({i['fcstTime'] : i['fcstValue']})
+                if i['category'] == 'RN1':
+                    rain_amount.append(i['fcstValue'].encode('utf-8'))
+                if i['category'] == 'T1H':
+                    temperature.append(i['fcstValue'].encode('utf-8'))
+            recommendation = []
+            for i in range(0,6):
+                recommendation.append(exercise_recommendation(rain, i).encode('utf-8'))
+            
+            result = []
+            result.append(rain)
+            result.append(recommendation)
+            result.append(temperature)
+            result.append(rain_amount)
+            
+            response=Response(result, status=status.HTTP_200_OK)
+            response.set_cookie('rain', rain, max_age=300)
+            response.set_cookie('recommendation', recommendation, max_age=300)
+            response.set_cookie('rain_amount', rain_amount, max_age=300)
+            response.set_cookie('temperature', temperature, max_age=300)
+            print(request.COOKIES.get('recommendation'))
+            print("hello")
+            print(rain)
+
+            
+            return response
+        else:
+            print(request.COOKIES.get('recommendation'))
+            recommendation = request.COOKIES.get('recommendation')
+            rain_amount = request.COOKIES.get('rain_amount')
+            temperature = request.COOKIES.get('temperature')
+            response=Response(rain, status=status.HTTP_200_OK)
+            return response
+        
 
     
 
