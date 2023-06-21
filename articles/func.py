@@ -1,4 +1,5 @@
 import math, random
+import datetime
 from .models import InSubCategory, OutSubCategory
 def grid(v1, v2) :
  
@@ -41,11 +42,11 @@ def grid(v1, v2) :
     rs['y'] = math.floor(ro - ra * math.cos(theta) + YO + 0.5)
     return rs
 
-def exercise_recommendation(weather, index) :
+def exercise_recommendation(weather, index) : #운동 추천 함수
     in_cat = InSubCategory()
     out_cat = OutSubCategory()
-    category = []
-    category.append(in_cat.in_sub_categories) # weather[i].key != 0
+    category = [] #운동 카테고리 저장. [0] = 실내 [1] = 야외
+    category.append(in_cat.in_sub_categories) # weather[i].key != 0 
     in_recommendation = category[0][random.randrange(0,len(category[0]))][1]
 
     category.append(out_cat.out_sub_categories) # weather[i].key == 0 일때
@@ -63,3 +64,28 @@ def exercise_recommendation(weather, index) :
         
     return out_recommendation
         
+def get_time(time_dict) : # 날씨 api에 넣을 시간데이터 함수
+    now = datetime.datetime.now()
+    not_now = now - datetime.timedelta(minutes=30) # 30분 전 시간을 데이터로 사용.
+    time_dict['year'] = not_now.year
+    time_dict['month'] = not_now.month
+    time_dict['day'] = not_now.day
+    time_dict['hour'] = not_now.hour
+    time_dict['minute'] = not_now.minute
+
+    
+    if time_dict['month'] < 10: # 시간 데이터는 월/일/시/분이 모두 2자리를 차지해야해서 한 자리 수면 앞에 0을 붙여줌.
+        time_dict['month'] = str(time_dict['month'])
+        time_dict['month'] = '0' + time_dict['month']
+    if time_dict['day'] < 10: 
+        time_dict['day'] = str(time_dict['day'])
+        time_dict['day'] = '0' + time_dict['day']
+    if time_dict['hour'] < 10:
+        time_dict['hour'] = str(time_dict['hour'])
+        time_dict['hour'] = '0' + time_dict['hour']
+    if time_dict['minute'] < 10:
+        time_dict['minute'] = str(time_dict['minute'])
+        time_dict['minute'] = '0' + time_dict['minute']
+    
+
+    return time_dict
