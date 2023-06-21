@@ -25,14 +25,23 @@ class FeedViews(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-
 class ArticlesViews(APIView):
-    #달력엔 내가 작성한 게시글만 볼 수 있음
     def get(self, request):
-        articles = Articles.objects.filter(user=request.user) 
-        serializer = ArticleViewSerializer(articles, many=True)  
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        if request.user.is_authenticated:
+            user_id = request.user.id
+            selected_date_str = request.GET.get('date')  #articles/my000/?date=2023-06-12
+            
+            # 달력에 사용자의 모든 게시글 표시
+            if not selected_date_str:
+                articles = Articles.objects.filter(user_id=user_id)
+            #특정 날짜에 선택한 사용자의 게시글 표시
+            else:
+                articles = Articles.objects.filter(user_id=user_id, select_day=selected_date_str)
 
+            serializer = ArticleViewSerializer(articles, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response('확인할 수 없는 사용자입니다.', status=status.HTTP_404_NOT_FOUND)
 
 
     def post(self, request):
