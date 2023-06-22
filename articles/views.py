@@ -14,8 +14,8 @@ import json
 from django.shortcuts import redirect
 import googlemaps
 import re
-from .func import grid
-from . import api_key_loader
+from .func import grid, exercise_recommendation, get_time
+from django.conf import settings
 
 #feed는 유저들의 공개 게시글만
 class FeedViews(APIView):
@@ -195,69 +195,56 @@ class CommentLikesView(APIView):
             return Response({"message":"좋아요"}, status=status.HTTP_200_OK)
 
 class WeatherView(APIView):
-    def get(self, request):
-        if request.COOKIES.get('rain') == None:
-            weather_url ='http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst'
-            weather_para ={}
-            
-            map_url =f'https://www.googleapis.com/geolocation/v1/geolocate?key={api_key_loader.map_key}'
-            map_data = {
-                'considerIp': True, # 현 IP로 데이터 추출
-                }
-            
-            now = datetime.datetime.now()
-            not_now = now - datetime.timedelta(minutes=30)
-            year = not_now.year
-            month = not_now.month
-            day = not_now.day
-            hour = not_now.hour
-            minute = not_now.minute
-            if month < 10:
-                month = str(month)
-                month = '0' + month
-            
-            if minute < 10:
-                minute = str(minute)
-                minute = '0' + minute
+    def get(self, request): #현재 post를 통해 데이터를 받고 다시 전해주면, 프론트 자체에서 쿠키를 저장해서 사용하는 만큼 지금은 쓸 일 X
+        
 
-            if hour < 10:
-                hour = str(hour)
-                hour = '0' + hour
+        pass
+    
+    def post(self, request):
+        
+        weather_url ='http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst' #날씨 api url
+        weather_para ={} # 날씨 api에 적용할 빈 파라미터 선언.
+        weather_key = getattr(settings, 'WEATHER_KEY')
+        time_dict = {} # 날씨 api에 넣을 시간 데이터 딕셔너리 선언.
+        req = {} # 프론트에서 위치 정보 json으로 받을 딕셔너리
 
-            base_date = str(year) + str(month) + str(day)
+        recommendation = [] # 추천 운동 정보
+        rain = [] # 날씨 정보
+        rain_amount = [] # 강수량
+        temperature = [] # 기온
+        result = [] # 위 4가지의 정보를 담아서 프론트로 보낼 결과.
 
-            base_time = str(hour) + str(minute)
+        time_dict = get_time(time_dict)
+        base_date = str(time_dict['year']) + str(time_dict['month']) + str(time_dict['day'])
+        base_time = str(time_dict['hour']) + str(time_dict['minute'])
 
-            print(base_date)
-            print(base_time)
+        req = json.loads(request.body) #위치 정보 획득
+        rs = grid(req['lat'],req['lon'])
 
-            result = requests.post(map_url, map_data)
-            result2 = json.loads(result.text)
+        weather_para={'ServiceKey':weather_key, 'pageNo':1,'numOfRows':'1000','dataType': 'JSON', 'nx' : rs['x'], 'ny' : rs['y'], 'base_date' : base_date, 'base_time' : base_time}
 
-            rs = grid(result2['location']['lat'],result2['location']['lng']) # 
-            nx = rs['x']
-            ny = rs['y']
-
-            weather_para={'ServiceKey':api_key_loader.weather_key, 'pageNo':1,'numOfRows':'1000','dataType': 'JSON', 'nx' : nx, 'ny' : ny, 'base_date' : base_date, 'base_time' : base_time}
-
-            res = requests.get(weather_url, weather_para)
-            res_json = json.loads(res.content)
-
-            items=res_json['response']['body']['items']['item']
-            rain = [] # 강수 정보만 쿠키에 담으려고 합니다.
-            for i in items:
-                if i['category'] == 'PTY':
-                    rain.append({i['fcstTime'] : i['fcstValue']})
-
-
-            response=Response(rain, status=status.HTTP_200_OK)
-            response.set_cookie('rain', rain, max_age=300)
-
-            return response
-        else:
-            rain = request.COOKIES.get('rain')
-            response=Response(rain, status=status.HTTP_200_OK)
-            return response
+        res = requests.get(weather_url, weather_para)
+        res_json = json.loads(res.content)
+        items=res_json['response']['body']['items']['item']
+        
+        for i in items: # 카테고리가 키로 돼 있음. PTY 날씨 종류 RN1 강수량 T1H 기온
+            if i['category'] == 'PTY':
+                rain.append({i['fcstTime'] : i['fcstValue']})
+            if i['category'] == 'RN1':
+                rain_amount.append(i['fcstValue'].encode('utf-8'))
+            if i['category'] == 'T1H':
+                temperature.append(i['fcstValue'].encode('utf-8'))
+        
+        for i in range(0,6):
+            recommendation.append(exercise_recommendation(rain, i).encode('utf-8'))
+        
+        result.append(rain)
+        result.append(recommendation)
+        result.append(temperature)
+        result.append(rain_amount)
+        response=Response(result, status=status.HTTP_200_OK)
+        
+        return response
 
 
 

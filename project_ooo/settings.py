@@ -190,6 +190,7 @@ CORS_ALLOWED_ORIGINS = [
 # }
 
 # 인증 전역 설정(인증 설정 따로 분리하는게 좋긴함)
+
 # REST_AUTH = {
 #     'USE_JWT': True,
 #     'SESSION_LOGIN': False,
@@ -223,3 +224,5 @@ CORS_ALLOWED_ORIGINS = [
 #     # `allauth` specific authentication methods, such as login by e-mail
 #     'allauth.account.auth_backends.AuthenticationBackend',
 # ]
+WEATHER_KEY = os.environ.get("WEATHER_KEY")
+
