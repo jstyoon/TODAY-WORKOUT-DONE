@@ -70,7 +70,7 @@ class ArticlesCreateSerializer(serializers.ModelSerializer):
         model = Articles
         fields = ["user","category", "content","select_day","exercise_time",
                 "image", "check_status", "is_private","in_subcategory",
-                "out_subcategory","created_at", "updated_at"]
+                "out_subcategory","created_at", "updated_at", "likes", "like_count"]
 
 
 
