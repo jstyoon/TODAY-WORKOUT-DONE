@@ -5,7 +5,7 @@ from users import views
 
 urlpatterns = [
     # users/
-    path('', views.UserView.as_view()), 
+    path('', views.UserRegisterView.as_view()), 
     path('api/token/', views.CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     # dj-rest-auth/
