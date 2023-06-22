@@ -1,7 +1,7 @@
 from django.db import models
 
 from django.utils import timezone
-from users.models import User, commonModel
+from users.models import User, CommonModel
 # from django.db.models.signals import pre_save
 # from django.dispatch import receiver
 
@@ -54,7 +54,7 @@ class OutSubCategory(models.Model):
         return self.get_out_sub_category_display()
 
 
-class Articles(commonModel):
+class Articles(CommonModel):
     class Meta:
         db_table = "Article"
 
@@ -71,6 +71,7 @@ class Articles(commonModel):
     image = models.FileField(
         "이미지", upload_to='uploads/%Y/%m/%d', blank=True, null=True) 
     likes = models.ManyToManyField(User, blank=True, related_name="like_articles") # 게시물 좋아요
+    like_count = models.IntegerField(User, default=0) # 좋아요 수 카운트
     # likes = models.ManyToManyField(User, blank=True, related_name="like_articles", through='Feed_like') 개인 프로필에서 보이는 좋아요 한 글
     
     
@@ -79,7 +80,7 @@ class Articles(commonModel):
 
 
 
-class Comment(commonModel):
+class Comment(CommonModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     article = models.ForeignKey(Articles, on_delete=models.CASCADE)
     content = models.TextField(max_length=100)
