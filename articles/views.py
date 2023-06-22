@@ -25,14 +25,23 @@ class FeedViews(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-
 class ArticlesViews(APIView):
-    #달력엔 내가 작성한 게시글만 볼 수 있음
     def get(self, request):
-        articles = Articles.objects.filter(user=request.user) 
-        serializer = ArticleViewSerializer(articles, many=True)  
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        if request.user.is_authenticated:
+            user_id = request.user.id
+            selected_date_str = request.GET.get('date')  #articles/my000/?date=2023-06-12
+            
+            # 달력에 사용자의 모든 게시글 표시
+            if not selected_date_str:
+                articles = Articles.objects.filter(user_id=user_id)
+            #특정 날짜에 선택한 사용자의 게시글 표시
+            else:
+                articles = Articles.objects.filter(user_id=user_id, select_day=selected_date_str)
 
+            serializer = ArticleViewSerializer(articles, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response('확인할 수 없는 사용자입니다.', status=status.HTTP_404_NOT_FOUND)
 
 
     def post(self, request):
@@ -49,8 +58,11 @@ class ArticlesDetailView(APIView):
     #게시글 상세보기 (댓글 가능)
     def get(self, request, article_id):
         articles = get_object_or_404(Articles, id=article_id)
+        is_liked = True if request.user in articles.likes.all() else False # 좋아요 여부에 따라 T/F 값을 출력하는 변수
         serializer = ArticlesCreateSerializer(articles)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        res_data = serializer.data
+        res_data.update({'is_liked': is_liked}) # serializer를 거친 데이터에 is_liked값 저장
+        return Response(res_data, status=status.HTTP_200_OK) # 각 article에 대한 각 사용자의 좋아요 여부까지 DB에 저장
     
 
 
@@ -84,14 +96,43 @@ class ArticlesDetailView(APIView):
 
           
 class ArticleLikesView(APIView):
+
+    def get(self, request, article_id):
+        article = get_object_or_404(Articles, id=article_id)
+        fluctuation = article.likes.count() # ArticlesDetailView에서 저장한 해당 아티클의 좋아요 갯수
+        if request.user in article.likes.all():
+            article.like_count = fluctuation
+            article.save()
+            return Response({"message":"🧡", "fluctuation": article.like_count}, status=status.HTTP_200_OK)
+        else:
+            article.like_count = fluctuation
+            article.save()
+            return Response({"message":"🤍", "fluctuation": article.like_count}, status=status.HTTP_200_OK)
+
     def post(self, request, article_id):
         article = get_object_or_404(Articles, id=article_id)
-        if request.user in article.likes.all():
-            article.likes.remove(request.user)
-            return Response({"message":"좋아요"}, status=status.HTTP_200_OK)
+        fluctuation = article.likes.count()
+        print(fluctuation)
+        if not request.user.is_authenticated:
+            return Response("로그인이 필요합니다.", status=status.HTTP_401_UNAUTHORIZED)
         else:
-            article.likes.add(request.user)
-            return Response({"message":"좋아요 취소"}, status=status.HTTP_200_OK)
+            if request.user in article.likes.all():
+                fluctuation -= 1
+                if fluctuation < 0:
+                    fluctuation = 0
+                article.like_count = fluctuation
+                article.likes.remove(request.user)
+                article.save()
+                return Response({"message":"🤍", "fluctuation": article.like_count}, status=status.HTTP_200_OK)
+            else:
+                fluctuation += 1
+                article.like_count = fluctuation
+                article.likes.add(request.user)
+                article.save()
+                return Response({"message":"🧡", "fluctuation": article.like_count}, status=status.HTTP_200_OK)
+        
+
+
           
 
 class CommentView(APIView):
@@ -148,9 +189,10 @@ class CommentLikesView(APIView):
         comment = get_object_or_404(Comment, id=comment_id)
         if request.user in comment.likes.all():
             comment.likes.remove(request.user)
-            return Response({"message":"좋아요"}, status=status.HTTP_200_OK)
+            return Response({"message":"좋아요 취소"}, status=status.HTTP_200_OK)
         else:
-            return Response("자신의 댓글만 삭제할 수 있습니다", status=status.HTTP_403_FORBIDDEN)
+            comment.likes.add(request.user)
+            return Response({"message":"좋아요"}, status=status.HTTP_200_OK)
 
 class WeatherView(APIView):
     def get(self, request): #현재 post를 통해 데이터를 받고 다시 전해주면, 프론트 자체에서 쿠키를 저장해서 사용하는 만큼 지금은 쓸 일 X

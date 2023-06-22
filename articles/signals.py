@@ -5,6 +5,8 @@ from articles.models import Articles
 from django.utils import timezone
 from django.db.models.signals import pre_save
 
+
+
 """
 check_status값이 True값으로 전환될때 해당 시간을 저장함
 """
