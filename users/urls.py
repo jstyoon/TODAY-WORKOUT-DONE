@@ -9,12 +9,12 @@ urlpatterns = [
     path('api/token/', views.CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     # dj-rest-auth/
-    path('dj-rest-auth/', include('dj_rest_auth.urls')),
-    path('dj-rest-auth/registration/', include('dj_rest_auth.registration.urls')),
+    # path('dj-rest-auth/', include('dj_rest_auth.urls')),
+    # path('dj-rest-auth/registration/', include('dj_rest_auth.registration.urls')),
     
-    path("verify-email/", VerifyEmailView.as_view(), name="rest_verify_email"),
-    path("account-confirm-email/",VerifyEmailView.as_view(),name="account_confirm_email_sent",),
-    path("account-confirm-email/<key>/",VerifyEmailView.as_view(),name="account_confirm_email",),
+    # path("verify-email/", VerifyEmailView.as_view(), name="rest_verify_email"),
+    # path("account-confirm-email/",VerifyEmailView.as_view(),name="account_confirm_email_sent",),
+    # path("account-confirm-email/<key>/",VerifyEmailView.as_view(),name="account_confirm_email",),
 ]
 
 """ dj-rest-auth
