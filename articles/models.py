@@ -72,6 +72,7 @@ class Articles(commonModel):
         "이미지", upload_to='uploads/%Y/%m/%d', blank=True, null=True) 
     likes = models.ManyToManyField(User, blank=True, related_name="like_articles") # 게시물 좋아요
     like_count = models.IntegerField(User, default=0) # 좋아요 수 카운트
+    comment_count = models.IntegerField(User, default=0)
     # likes = models.ManyToManyField(User, blank=True, related_name="like_articles", through='Feed_like') 개인 프로필에서 보이는 좋아요 한 글
     
     
