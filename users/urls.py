@@ -1,11 +1,11 @@
-from django.urls import path, include, re_path
+from django.urls import path, include
 from rest_framework_simplejwt.views import TokenRefreshView
-from dj_rest_auth.registration.views import VerifyEmailView
 from users import views
 
 urlpatterns = [
     # users/
-    path('', views.UserRegisterView.as_view()), 
-    path('api/token/', views.CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('', views.UserRegisterView.as_view(), name='register_view'), 
+    path('<int:user_id>/', views.UserView.as_view(), name='user_view'), 
+    path('api/token/', views.CustomTokenObtainPairView.as_view(), name='ctop_view'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='tr_view'),
 ]
