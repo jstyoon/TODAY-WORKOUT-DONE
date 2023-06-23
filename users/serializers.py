@@ -4,43 +4,43 @@ from users.models import User
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 # from articles.models import Feed_like 개인 프로필에서 보이는 좋아요한 글
 
-# Custom Token 페이로드에 클레임 설정
+
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    """ 페이로드에 재정의, 토큰 정보 직렬화 """
+
     @classmethod
     def get_token(cls, user):
-        token = super().get_token(user) # 기존 토큰 가져오기
-        # token['email'] = user.email 
+        token = super().get_token(user)
         token['username'] = user.username
         return token
 
 
-# User Register Serializer
 class UserRegisterSerializer(ModelSerializer):
+    """ 유저 등록 엔드포인트 생성시 직렬화 """
 
     class Meta:
         model = User
         fields = "__all__"
         extra_kwargs = {'password': {'write_only': True}}
 
-    def create(self, *args, **kwargs) -> User:
-        user = super().create(*args, **kwargs)
-        p = user.password
-        user.set_password(p)
+    def create(self, validated_data) -> User:
+        user = super().create(validated_data)
+        user.set_password(user.password)
         user.save()
         return user
 
 
-# User Serializer
 class UserSerializer(ModelSerializer):
+    """ 유저 정보 업데이트시 데이터 직렬화 """
 
     class Meta:
         model = User
         fields = "__all__"
+        exclude = ("is_admin", "is_active")
 
-    def update(self, *args, **kwargs) -> User:
-        user = super().update(*args, **kwargs)
-        p = user.password
-        user.set_password(p)
+    def update(self, instance, validated_data) -> User:
+        user = super().update(instance, validated_data)
+        user.set_password(user.password)
         user.save()
         return user
 
