@@ -2,6 +2,7 @@ from rest_framework import serializers
 from articles.models import Articles,Category,InSubCategory,OutSubCategory
 from django.shortcuts import get_object_or_404
 from .models import Comment
+from datetime import date, timedelta
 
 
 
@@ -17,13 +18,19 @@ class ArticlesSerializer(serializers.ModelSerializer):
 
 class ArticleViewSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
+    check_status_count = serializers.SerializerMethodField()
 
     def get_user(self, obj):
         return {'username': obj.user.username, 'id': obj.user.pk}
+    
+    def get_check_status_count(self, obj):
+        check_count = Articles.objects.filter(check_status=True, created_at__range=[date.today() - timedelta(days=10), date.today()])
+        return check_count.count()
+
 
     class Meta:
         model = Articles
-        fields = ["user","category","check_status","select_day"]
+        fields = ["user","id","category","check_status","check_status_count","select_day"]
 
 
 #데이터 직렬화
@@ -82,7 +89,7 @@ class ArticlePutSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Articles
-        fields = ["category", "select_day", "content", "check_status", "image", "is_private", "in_subcategory", "out_subcategory"]
+        fields = ["category", "select_day", "content", "check_status", "image", "is_private", "in_subcategory", "out_subcategory","exercise_time"]
 
     def update(self, instance, validated_data):
         category_data = validated_data.pop('category', None)
