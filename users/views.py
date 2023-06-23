@@ -38,7 +38,6 @@ class UserView(APIView):
         owner = get_object_or_404(User, id=user_id)
         serializer = UserSerializer(owner)
         return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(UserRegisterSerializer(request.user).data, status=status.HTTP_200_OK)
 
     # 사용자 정보 수정
     def put(self, request, user_id):
