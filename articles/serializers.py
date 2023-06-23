@@ -19,11 +19,11 @@ class ArticleViewSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
 
     def get_user(self, obj):
-        return {'username': obj.user.username, 'pk': obj.user.pk}
+        return {'username': obj.user.username, 'id': obj.user.pk}
 
     class Meta:
         model = Articles
-        fields = ["user","category","check_status"]
+        fields = ["user","category","check_status","select_day"]
 
 
 #데이터 직렬화
@@ -68,9 +68,9 @@ class ArticlesCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Articles
-        fields = ["user","category", "content","select_day",
+        fields = ["user","category", "content","select_day","exercise_time",
                 "image", "check_status", "is_private","in_subcategory",
-                "out_subcategory","created_at", "updated_at"]
+                "out_subcategory","created_at", "updated_at", "likes", "like_count"]
 
 
 
