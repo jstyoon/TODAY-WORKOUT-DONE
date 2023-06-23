@@ -57,7 +57,7 @@ class User(AbstractBaseUser, CommonModel):
     username = models.CharField("사용자 계정", max_length=50, unique=True) # PK당 하나의 아이디 등록 가능
     email = models.EmailField("이메일 주소", max_length=100)
     password = models.CharField("비밀번호", max_length=128)
-    momentum = models.CharField("동기부여", max_length=255)
+    about_me = models.TextField("소개", max_length=255, blank=True)
     photo = models.ImageField("사용자 사진", upload_to="%Y/%m", blank=True) # 사용자 사진
     is_active = models.BooleanField(default=True) # 계정 활성화
     is_admin = models.BooleanField(default=False) # 관리자 권한
