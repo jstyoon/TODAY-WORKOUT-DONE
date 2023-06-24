@@ -36,7 +36,7 @@ class UserSerializer(ModelSerializer):
     class Meta:
         model = User
         fields = "__all__"
-        exclude = ("is_admin", "is_active")
+        # exclude = ("is_admin", "is_active")
 
     def update(self, instance, validated_data) -> User:
         user = super().update(instance, validated_data)
