@@ -30,7 +30,7 @@ class UserRegisterView(APIView):
 
 class UserView(APIView):
 
-    permission_classes = permissions.IsAuthenticatedOrReadOnly
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get(self, request, user_id):
         """ 사용자 정보 조회 """
