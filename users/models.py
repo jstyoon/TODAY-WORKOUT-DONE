@@ -70,7 +70,7 @@ class User(AbstractBaseUser, CommonModel):
     
 
     def __str__(self):
-        return f"{self.username} / {self.email}" # 스트링으로 표시되는 필드
+        return f"{self.username}" # 스트링으로 표시되는 필드
 
     def has_perm(self, perm, obj=None):
         return True
