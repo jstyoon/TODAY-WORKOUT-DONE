@@ -146,6 +146,8 @@ class CommentView(APIView):
         article = get_object_or_404(Articles, id=article_id)
         serializer = CommentCreateSerializer(data=request.data)
         if serializer.is_valid():
+            article.comment_count += 1
+            article.save()
             serializer.save(user=request.user, article=article)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
@@ -180,6 +182,11 @@ class CommentDetailView(APIView):
         if comment.user != request.user:
             return Response({"message": "댓글 작성자만 삭제할 수 있습니다."}, status=status.HTTP_403_FORBIDDEN)
         else :
+            article = get_object_or_404(Articles, id=article_id)
+            article.comment_count -= 1
+            if article.comment_count < 0:
+                article.comment_count = 0
+            article.save()
             comment.delete()
             return Response({"message":"삭제되었습니다."}, status=status.HTTP_204_NO_CONTENT)
         
