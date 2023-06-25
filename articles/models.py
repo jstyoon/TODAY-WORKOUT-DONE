@@ -63,7 +63,7 @@ class Articles(CommonModel):
     check_status = models.BooleanField(default=False)
     is_private = models.BooleanField(default=False)
     complete_at = models.DateTimeField(null=True, blank=True)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, blank=True, null=True)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, blank=True, null=True)
     in_subcategory = models.ForeignKey(InSubCategory, on_delete=models.CASCADE, blank=True, null=True)
     out_subcategory = models.ForeignKey(OutSubCategory, on_delete=models.CASCADE, blank=True, null=True)
     exercise_time = models.PositiveIntegerField("운동시간",default=0,blank=True, null=True)
