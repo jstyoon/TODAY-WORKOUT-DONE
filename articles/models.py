@@ -35,7 +35,6 @@ class InSubCategory(models.Model):
     )
     in_sub_category = models.CharField("상세 운동종류",max_length=10,choices=in_sub_categories)
 
-
     def __str__(self):
         return self.in_sub_category
 
@@ -55,8 +54,8 @@ class OutSubCategory(models.Model):
 
 
 class Articles(CommonModel):
-    class Meta:
-        db_table = "Article"
+    # class Meta:
+    #     db_table = "Article"
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.TextField("글내용")
@@ -64,7 +63,7 @@ class Articles(CommonModel):
     check_status = models.BooleanField(default=False)
     is_private = models.BooleanField(default=False)
     complete_at = models.DateTimeField(null=True, blank=True)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, blank=True, null=True)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, blank=True, null=True)
     in_subcategory = models.ForeignKey(InSubCategory, on_delete=models.CASCADE, blank=True, null=True)
     out_subcategory = models.ForeignKey(OutSubCategory, on_delete=models.CASCADE, blank=True, null=True)
     exercise_time = models.PositiveIntegerField("운동시간",default=0,blank=True, null=True)
@@ -72,12 +71,11 @@ class Articles(CommonModel):
         "이미지", upload_to='uploads/%Y/%m/%d', blank=True, null=True) 
     likes = models.ManyToManyField(User, blank=True, related_name="like_articles") # 게시물 좋아요
     like_count = models.IntegerField(User, default=0) # 좋아요 수 카운트
+    comment_count = models.IntegerField(User, default=0)
     # likes = models.ManyToManyField(User, blank=True, related_name="like_articles", through='Feed_like') 개인 프로필에서 보이는 좋아요 한 글
-    
     
     def __str__(self):
         return str(self.category)
-
 
 
 class Comment(CommonModel):
