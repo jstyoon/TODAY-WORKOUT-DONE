@@ -24,7 +24,7 @@ class ArticleViewSerializer(serializers.ModelSerializer):
         return {'username': obj.user.username, 'id': obj.user.pk}
     
     def get_check_status_count(self, obj):
-        check_count = Articles.objects.filter(check_status=True)
+        check_count = Articles.objects.filter(check_status=True, created_at__range=[date.today() - timedelta(days=10), date.today()])
         return check_count.count()
 
 
