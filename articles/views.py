@@ -46,6 +46,7 @@ class ArticlesViews(APIView):
 
     def post(self, request):
         serializer = ArticlesCreateSerializer(data=request.data)
+        print(request.data)
         if serializer.is_valid():
             serializer.save(user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -85,7 +86,7 @@ class ArticlesDetailView(APIView):
 
 
     def delete(self, request, article_id):
-        articles = Articles.objects.get(id=article_id)
+        articles = get_object_or_404(Articles, id=article_id)
         if request.user == articles.user:
             articles.delete()
             return Response({"message": "삭제완료!"},status=status.HTTP_204_NO_CONTENT)
