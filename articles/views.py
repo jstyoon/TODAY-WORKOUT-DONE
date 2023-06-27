@@ -16,14 +16,24 @@ import googlemaps
 import re
 from .func import grid, exercise_recommendation, get_time
 from django.conf import settings
+from django.core.paginator import Paginator,PageNotAnInteger
+
 
 #feed는 유저들의 공개 게시글만
 class FeedViews(APIView):
     def get(self, request):
-        articles = Articles.objects.filter(is_private = False)
-        serializer = ArticlesSerializer(articles, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        try:
+            articles = Articles.objects.filter(is_private=False)
+            paginator = Paginator(articles, 5)
+            page = request.GET.get('page')
+            page_obj = paginator.get_page(page)
+            serializer = ArticlesSerializer(page_obj, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except PageNotAnInteger:
+            return Response({"error": "유효하지 않은 페이지 번호입니다."}, status=status.HTTP_400_BAD_REQUEST)
 
+        except Exception as e:
+            return Response({"error": f"예외가 발생했습니다: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class ArticlesViews(APIView):
     def get(self, request):
