@@ -19,7 +19,6 @@ class ArticlesSerializer(serializers.ModelSerializer):
 class ArticleViewSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
     check_status_count = serializers.SerializerMethodField()
-
     def get_user(self, obj):
         return {'username': obj.user.username, 'id': obj.user.pk}
     
