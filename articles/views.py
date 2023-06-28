@@ -31,7 +31,7 @@ class AllFeedViews(APIView):
 class FeedViews(APIView):
     def get(self, request):
         try:
-            articles = Articles.objects.filter(is_private=False)
+            articles = Articles.objects.filter(is_private=False).order_by('-complete_at')
             paginator = Paginator(articles, 5)
             page = request.GET.get('page')
             page_obj = paginator.get_page(page)
