@@ -23,7 +23,7 @@ class ArticleViewSerializer(serializers.ModelSerializer):
         return {'username': obj.user.username, 'id': obj.user.pk}
     
     def get_check_status_count(self, obj):
-        check_count = Articles.objects.filter(check_status=True)
+        check_count = Articles.objects.filter(check_status=True, user_id = obj.user.id)
         return check_count.count()
 
 
