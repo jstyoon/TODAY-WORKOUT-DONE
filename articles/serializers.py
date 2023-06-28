@@ -126,9 +126,12 @@ class ArticlePutSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    
+    username = serializers.CharField(source='user.username', read_only=True)
+    
     class Meta:
         model = Comment
-        fields = '__all__'
+        fields = ('id', 'user', 'username', 'article', 'content', 'likes',)
 
 class CommentCreateSerializer(serializers.ModelSerializer):
     class Meta:
