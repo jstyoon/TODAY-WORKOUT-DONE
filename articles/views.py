@@ -19,6 +19,14 @@ from django.conf import settings
 from django.core.paginator import Paginator,PageNotAnInteger
 
 
+
+class AllFeedViews(APIView):
+    def get(self, request):
+        articles = Articles.objects.filter(is_private = False)
+        serializer = ArticlesSerializer(articles, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 #feed는 유저들의 공개 게시글만
 class FeedViews(APIView):
     def get(self, request):
