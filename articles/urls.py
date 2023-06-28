@@ -4,6 +4,7 @@ from django.urls import path
 urlpatterns = [
 
     path('', views.FeedViews.as_view(), name='article'),
+    path('feed/',views.AllFeedViews.as_view(), name='article_all_feed'),
     path('my000/', views.ArticlesViews.as_view(),name='article_views'),
     path('<int:article_id>/detail/', views.ArticlesDetailView.as_view(),name='article_detail'),
 
