@@ -16,14 +16,24 @@ import googlemaps
 import re
 from .func import grid, exercise_recommendation, get_time
 from django.conf import settings
+from django.core.paginator import Paginator,PageNotAnInteger
+
 
 #feed는 유저들의 공개 게시글만
 class FeedViews(APIView):
     def get(self, request):
-        articles = Articles.objects.filter(is_private = False)
-        serializer = ArticlesSerializer(articles, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        try:
+            articles = Articles.objects.filter(is_private=False)
+            paginator = Paginator(articles, 5)
+            page = request.GET.get('page')
+            page_obj = paginator.get_page(page)
+            serializer = ArticlesSerializer(page_obj, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except PageNotAnInteger:
+            return Response({"error": "유효하지 않은 페이지 번호입니다."}, status=status.HTTP_400_BAD_REQUEST)
 
+        except Exception as e:
+            return Response({"error": f"예외가 발생했습니다: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class ArticlesViews(APIView):
     def get(self, request):
@@ -46,6 +56,7 @@ class ArticlesViews(APIView):
 
     def post(self, request):
         serializer = ArticlesCreateSerializer(data=request.data)
+        print(request.data)
         if serializer.is_valid():
             serializer.save(user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -85,7 +96,7 @@ class ArticlesDetailView(APIView):
 
 
     def delete(self, request, article_id):
-        articles = Articles.objects.get(id=article_id)
+        articles = get_object_or_404(Articles, id=article_id)
         if request.user == articles.user:
             articles.delete()
             return Response({"message": "삭제완료!"},status=status.HTTP_204_NO_CONTENT)
