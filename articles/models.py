@@ -48,7 +48,7 @@ class OutSubCategory(models.Model):
     )
     out_sub_category = models.CharField("상세 운동종류",max_length=10,choices=out_sub_categories)
 
-    
+
     def __str__(self):
         return self.out_sub_category
 
@@ -87,6 +87,8 @@ class Comment(CommonModel):
     article = models.ForeignKey(Articles, on_delete=models.CASCADE)
     content = models.TextField(max_length=100)
     likes = models.ManyToManyField(User, blank=True, related_name="like_comments")
+    like_count = models.IntegerField(User, default=0)
+
 
     def __str__(self):
         return self.content
