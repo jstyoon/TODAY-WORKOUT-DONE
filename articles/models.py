@@ -41,24 +41,23 @@ class InSubCategory(models.Model):
 
 class OutSubCategory(models.Model):
     out_sub_categories = (
-        ('걷기', '실외 걷기'),
-        ('뛰기', '야외 런닝'),
-        ('자전거', '야외 싸이클'),
-        ('구기', '구기종목'),
+        ('실외 걷기', '실외 걷기'),
+        ('야외 런닝', '야외 런닝'),
+        ('야외 싸이클', '야외 싸이클'),
+        ('구기종목', '구기종목'),
     )
     out_sub_category = models.CharField("상세 운동종류",max_length=10,choices=out_sub_categories)
 
-    
-    def __str__(self):
-        return self.get_out_sub_category_display()
 
+    def __str__(self):
+        return self.out_sub_category
 
 class Articles(CommonModel):
     # class Meta:
     #     db_table = "Article"
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    content = models.TextField("글내용")
+    content = models.TextField("글내용", max_length=15)
     select_day = models.DateField()
     check_status = models.BooleanField(default=False)
     is_private = models.BooleanField(default=False)
@@ -75,7 +74,7 @@ class Articles(CommonModel):
     # likes = models.ManyToManyField(User, blank=True, related_name="like_articles", through='Feed_like') 개인 프로필에서 보이는 좋아요 한 글
     
     def __str__(self):
-        return str(self.category)
+        return str(self.content)
 
 
 class Comment(CommonModel):
