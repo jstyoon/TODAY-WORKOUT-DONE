@@ -73,6 +73,11 @@ class Articles(CommonModel):
     comment_count = models.IntegerField(User, default=0)
     # likes = models.ManyToManyField(User, blank=True, related_name="like_articles", through='Feed_like') 개인 프로필에서 보이는 좋아요 한 글
     
+    @staticmethod
+    def get_check_status_count(user):
+        check_count = Articles.objects.filter(user=user, check_status=True)
+        return check_count.count()
+
     def __str__(self):
         return str(self.content)
 
