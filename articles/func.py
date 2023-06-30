@@ -15,7 +15,7 @@ def grid(v1, v2) :
     DEGRAD = math.pi / 180.0
     RADDEG = 180.0 / math.pi
 
-    re = RE / GRID;
+    re = RE / GRID
     slat1 = SLAT1 * DEGRAD
     slat2 = SLAT2 * DEGRAD
     olon = OLON * DEGRAD
@@ -26,7 +26,7 @@ def grid(v1, v2) :
     sf = math.tan(math.pi * 0.25 + slat1 * 0.5)
     sf = math.pow(sf, sn) * math.cos(slat1) / sn
     ro = math.tan(math.pi * 0.25 + olat * 0.5)
-    ro = re * sf / math.pow(ro, sn);
+    ro = re * sf / math.pow(ro, sn)
     rs = {}
     ra = math.tan(math.pi * 0.25 + (v1) * DEGRAD * 0.5)
     ra = re * sf / math.pow(ra, sn)
