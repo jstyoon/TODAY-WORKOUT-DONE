@@ -203,14 +203,40 @@ class CommentDetailView(APIView):
         
 
 class CommentLikesView(APIView):
+
+    def get(self, request, comment_id): # 리팩토링 필요 (댓글 수 만큼 계속 보내야함)
+        comment = get_object_or_404(Comment, id=comment_id)
+        comment_like = comment.likes.count()
+        if request.user in comment.likes.all():
+            comment.like_count = comment_like
+            comment.save()
+            return Response({"message":"🧡", "comment_like": comment.like_count}, status=status.HTTP_200_OK)
+        else:
+            comment.like_count = comment_like
+            comment.save()
+            return Response({"message":"🤍", "comment_like": comment.like_count}, status=status.HTTP_200_OK)
+
+
     def post(self, request, comment_id):
         comment = get_object_or_404(Comment, id=comment_id)
-        if request.user in comment.likes.all():
-            comment.likes.remove(request.user)
-            return Response({"message":"좋아요 취소"}, status=status.HTTP_200_OK)
+        comment_like = comment.likes.count()
+        if not request.user.is_authenticated:
+            return Response("로그인이 필요합니다.", status=status.HTTP_401_UNAUTHORIZED)
         else:
-            comment.likes.add(request.user)
-            return Response({"message":"좋아요"}, status=status.HTTP_200_OK)
+            if request.user in comment.likes.all():
+                comment_like -= 1
+                if comment_like < 0:
+                    comment_like = 0
+                comment.like_count = comment_like
+                comment.likes.remove(request.user)
+                comment.save()
+                return Response({"message":"🤍", "comment_like": comment.like_count}, status=status.HTTP_200_OK)
+            else:
+                comment_like += 1
+                comment.like_count = comment_like
+                comment.likes.add(request.user)
+                comment.save()
+                return Response({"message":"🧡", "comment_like": comment.like_count}, status=status.HTTP_200_OK)
 
 class WeatherView(APIView):
     def get(self, request): #현재 post를 통해 데이터를 받고 다시 전해주면, 프론트 자체에서 쿠키를 저장해서 사용하는 만큼 지금은 쓸 일 X
