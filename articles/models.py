@@ -16,9 +16,9 @@ class Category(models.Model):
     def get_subcategories(self):
         if self.category == 'in':
             return self.insubcategory_set.all()
-        elif self.category == 'out':
+        if self.category == 'out':
             return self.outsubcategory_set.all()
-        
+
     def __str__(self):
         return str(self.category)
 
@@ -36,7 +36,7 @@ class InSubCategory(models.Model):
     in_sub_category = models.CharField("상세 운동종류",max_length=10,choices=in_sub_categories)
 
     def __str__(self):
-        return self.in_sub_category
+        return str(self.in_sub_category)
 
 
 class OutSubCategory(models.Model):
@@ -48,9 +48,9 @@ class OutSubCategory(models.Model):
     )
     out_sub_category = models.CharField("상세 운동종류",max_length=10,choices=out_sub_categories)
 
-    
+
     def __str__(self):
-        return self.out_sub_category
+        return str(self.out_sub_category)
 
 class Articles(CommonModel):
     # class Meta:
@@ -84,7 +84,7 @@ class Comment(CommonModel):
     likes = models.ManyToManyField(User, blank=True, related_name="like_comments")
 
     def __str__(self):
-        return self.content
+        return str(self.content)
     
 
 
