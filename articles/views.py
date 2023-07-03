@@ -132,11 +132,9 @@ class ArticleLikesView(APIView):
         fluctuation = article.likes.count() # ArticlesDetailView에서 저장한 해당 아티클의 좋아요 갯수
         if request.user in article.likes.all():
             article.like_count = fluctuation
-            article.save()
             return Response({"message":"🧡", "fluctuation": article.like_count}, status=status.HTTP_200_OK)
         else:
             article.like_count = fluctuation
-            article.save()
             return Response({"message":"🤍", "fluctuation": article.like_count}, status=status.HTTP_200_OK)
 
     def post(self, request, article_id):
