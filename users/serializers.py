@@ -110,3 +110,16 @@ class SetNewPasswordSerializer(serializers.Serializer):
         except Exception as exc:
             raise AuthenticationFailed('토큰을 확인했지만 인증을 실패했어요. \n 다시 시도해주세요.') from exc
         return super().validate(attrs)
+
+
+class UserProfileSerializer(ModelSerializer):
+
+    class Meta:
+        model = User
+        exclude = ("is_admin", )
+
+    def update(self, instance, validated_data) -> User:
+        user = super().update(instance, validated_data)
+        user.set_password(user.password)
+        user.save()
+        return user

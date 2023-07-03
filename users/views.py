@@ -19,6 +19,12 @@ from .serializers import (RegisterSerializer,
                         SetNewPasswordSerializer)
 from .utils import Util
 from .renderers import UserRenderer
+from rest_framework.generics import get_object_or_404
+from .serializers import (UserSerializer,
+                          UserRegisterSerializer, 
+                          CustomTokenObtainPairSerializer,UserProfileSerializer)
+from rest_framework_simplejwt.views import TokenObtainPairView
+from users.models import User
 
 # class CustomTokenObtainPairView(TokenObtainPairView):
 #     serializer_class = CustomTokenObtainPairSerializer
