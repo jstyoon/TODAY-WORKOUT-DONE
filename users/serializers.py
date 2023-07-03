@@ -42,4 +42,11 @@ class UserSerializer(ModelSerializer):
         user.set_password(user.password)
         user.save()
         return user
+    
+
+class UserProfileSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        exclude = ("is_admin", )
+
 

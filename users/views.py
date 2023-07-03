@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 from .serializers import (UserSerializer,
                           UserRegisterSerializer, 
-                          CustomTokenObtainPairSerializer)
+                          CustomTokenObtainPairSerializer,UserProfileSerializer)
 from rest_framework_simplejwt.views import TokenObtainPairView
 from users.models import User
 
@@ -42,14 +42,14 @@ class UserView(APIView):
    
     def put(self, request, user_id):
         """ 사용자 정보 수정 """
-
+        
         owner = get_object_or_404(User, id=user_id)
         if request.user == owner: # 사용자인 경우
-            serializer = UserSerializer(owner, data=request.data, partial=True) 
+            serializer = UserProfileSerializer(owner, data=request.data, partial=True) 
             """ self.partial = kwargs.pop('partial', False) """
             if serializer.is_valid():
                 serializer.save()
-                update_user_info = UserSerializer(owner)
+                update_user_info = UserProfileSerializer(owner)
                 return Response(update_user_info.data, status=status.HTTP_200_OK)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
