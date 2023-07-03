@@ -43,21 +43,32 @@ class FeedViews(APIView):
         except Exception as e:
             return Response({"error": f"예외가 발생했습니다: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+"""
+get user
+if: 본인이 쓴 글 전체가져오기,
+else: 달력 날짜에 맞게 유저가 작성한 글 가져오기,
+check_status_count를 통해 유저의 운동완료 횟수 count하기
+해당값을 인스턴스에 실어서 serializer data에 함께 보여주기
+"""
 class ArticlesViews(APIView):
     def get(self, request):
         if request.user.is_authenticated:
             user_id = request.user.id
             selected_date_str = request.GET.get('date')  #articles/my000/?date=2023-06-12
             
-            # 달력에 사용자의 모든 게시글 표시
             if not selected_date_str:
                 articles = Articles.objects.filter(user_id=user_id)
-            #특정 날짜에 선택한 사용자의 게시글 표시
             else:
                 articles = Articles.objects.filter(user_id=user_id, select_day=selected_date_str)
 
+            check_status_count = Articles.get_check_status_count(request.user)
             serializer = ArticleViewSerializer(articles, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            serialized_data = serializer.data
+
+            for instance_data in serialized_data:
+                instance_data['check_status_count'] = check_status_count
+
+            return Response(serialized_data, status=status.HTTP_200_OK)
         else:
             return Response('확인할 수 없는 사용자입니다.', status=status.HTTP_404_NOT_FOUND)
 
@@ -121,11 +132,9 @@ class ArticleLikesView(APIView):
         fluctuation = article.likes.count() # ArticlesDetailView에서 저장한 해당 아티클의 좋아요 갯수
         if request.user in article.likes.all():
             article.like_count = fluctuation
-            article.save()
             return Response({"message":"🧡", "fluctuation": article.like_count}, status=status.HTTP_200_OK)
         else:
             article.like_count = fluctuation
-            article.save()
             return Response({"message":"🤍", "fluctuation": article.like_count}, status=status.HTTP_200_OK)
 
     def post(self, request, article_id):
@@ -211,14 +220,40 @@ class CommentDetailView(APIView):
         
 
 class CommentLikesView(APIView):
+
+    def get(self, request, comment_id): # 리팩토링 필요 (댓글 수 만큼 계속 보내야함)
+        comment = get_object_or_404(Comment, id=comment_id)
+        comment_like = comment.likes.count()
+        if request.user in comment.likes.all():
+            comment.like_count = comment_like
+            comment.save()
+            return Response({"message":"🧡", "comment_like": comment.like_count}, status=status.HTTP_200_OK)
+        else:
+            comment.like_count = comment_like
+            comment.save()
+            return Response({"message":"🤍", "comment_like": comment.like_count}, status=status.HTTP_200_OK)
+
+
     def post(self, request, comment_id):
         comment = get_object_or_404(Comment, id=comment_id)
-        if request.user in comment.likes.all():
-            comment.likes.remove(request.user)
-            return Response({"message":"좋아요 취소"}, status=status.HTTP_200_OK)
+        comment_like = comment.likes.count()
+        if not request.user.is_authenticated:
+            return Response("로그인이 필요합니다.", status=status.HTTP_401_UNAUTHORIZED)
         else:
-            comment.likes.add(request.user)
-            return Response({"message":"좋아요"}, status=status.HTTP_200_OK)
+            if request.user in comment.likes.all():
+                comment_like -= 1
+                if comment_like < 0:
+                    comment_like = 0
+                comment.like_count = comment_like
+                comment.likes.remove(request.user)
+                comment.save()
+                return Response({"message":"🤍", "comment_like": comment.like_count}, status=status.HTTP_200_OK)
+            else:
+                comment_like += 1
+                comment.like_count = comment_like
+                comment.likes.add(request.user)
+                comment.save()
+                return Response({"message":"🧡", "comment_like": comment.like_count}, status=status.HTTP_200_OK)
 
 class WeatherView(APIView):
     def get(self, request): #현재 post를 통해 데이터를 받고 다시 전해주면, 프론트 자체에서 쿠키를 저장해서 사용하는 만큼 지금은 쓸 일 X

@@ -16,9 +16,9 @@ class Category(models.Model):
     def get_subcategories(self):
         if self.category == 'in':
             return self.insubcategory_set.all()
-        if self.category == 'out':
+        elif self.category == 'out':
             return self.outsubcategory_set.all()
-
+        
     def __str__(self):
         return str(self.category)
 
@@ -36,7 +36,7 @@ class InSubCategory(models.Model):
     in_sub_category = models.CharField("상세 운동종류",max_length=10,choices=in_sub_categories)
 
     def __str__(self):
-        return str(self.in_sub_category)
+        return self.in_sub_category
 
 
 class OutSubCategory(models.Model):
@@ -50,7 +50,7 @@ class OutSubCategory(models.Model):
 
 
     def __str__(self):
-        return str(self.out_sub_category)
+        return self.out_sub_category
 
 class Articles(CommonModel):
     # class Meta:
@@ -73,6 +73,11 @@ class Articles(CommonModel):
     comment_count = models.IntegerField(User, default=0)
     # likes = models.ManyToManyField(User, blank=True, related_name="like_articles", through='Feed_like') 개인 프로필에서 보이는 좋아요 한 글
     
+    @staticmethod
+    def get_check_status_count(user):
+        check_count = Articles.objects.filter(user=user, check_status=True)
+        return check_count.count()
+
     def __str__(self):
         return str(self.content)
 
@@ -82,9 +87,11 @@ class Comment(CommonModel):
     article = models.ForeignKey(Articles, on_delete=models.CASCADE)
     content = models.TextField(max_length=100)
     likes = models.ManyToManyField(User, blank=True, related_name="like_comments")
+    like_count = models.IntegerField(User, default=0)
+
 
     def __str__(self):
-        return str(self.content)
+        return self.content
     
 
 
