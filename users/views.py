@@ -16,13 +16,12 @@ from .serializers import (RegisterSerializer,
                         EmailVerificationSerializer,
                         LoginSerializer,
                         PasswordResetRequestEmailSerializer,
-                        SetNewPasswordSerializer)
+                        SetNewPasswordSerializer,
+                        UserProfileSerializer)
 from .utils import Util
 from .renderers import UserRenderer
 from rest_framework.generics import get_object_or_404
-from .serializers import (UserSerializer,
-                          UserRegisterSerializer, 
-                          CustomTokenObtainPairSerializer,UserProfileSerializer)
+
 from rest_framework_simplejwt.views import TokenObtainPairView
 from users.models import User
 

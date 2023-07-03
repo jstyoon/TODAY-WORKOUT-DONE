@@ -112,14 +112,8 @@ class SetNewPasswordSerializer(serializers.Serializer):
         return super().validate(attrs)
 
 
-class UserProfileSerializer(ModelSerializer):
+class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
         exclude = ("is_admin", )
-
-    def update(self, instance, validated_data) -> User:
-        user = super().update(instance, validated_data)
-        user.set_password(user.password)
-        user.save()
-        return user
