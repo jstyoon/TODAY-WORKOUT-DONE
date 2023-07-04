@@ -17,6 +17,7 @@ import re
 from .func import grid, exercise_recommendation, get_time
 from django.conf import settings
 from django.core.paginator import Paginator,PageNotAnInteger
+import operator
 
 
 
@@ -308,5 +309,18 @@ class WeatherView(APIView):
         return response
 
 
+class RankingViews(APIView):
+    def get(self, request):
+        users = User.objects.all()
+        check_status_count_list = []
+        check_status_count_dict = {}
+        for i in range(len(users)):
+            print(i)
+            check_status_count_list.append(Articles.get_check_status_count(users[i]))
+            check_status_count_dict[users[i].username] = check_status_count_list[i]
+            print(check_status_count_dict)
 
+        ranking = sorted(check_status_count_dict.items(), key=operator.itemgetter(1), reverse=True)
+        response=Response(ranking, status=status.HTTP_200_OK)
+        return response
 
