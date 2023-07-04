@@ -1,8 +1,10 @@
 """ docstring """
 from rest_framework import generics, status, views
 from rest_framework.response import Response
+from rest_framework.generics import get_object_or_404
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+# from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.sites.shortcuts import get_current_site
@@ -17,13 +19,10 @@ from .serializers import (RegisterSerializer,
                         LoginSerializer,
                         PasswordResetRequestEmailSerializer,
                         SetNewPasswordSerializer,
-                        UserProfileSerializer)
+                        ProfileSerializer)
 from .utils import Util
 from .renderers import UserRenderer
-from rest_framework.generics import get_object_or_404
 
-from rest_framework_simplejwt.views import TokenObtainPairView
-from users.models import User
 
 # class CustomTokenObtainPairView(TokenObtainPairView):
 #     serializer_class = CustomTokenObtainPairSerializer
@@ -31,11 +30,13 @@ from users.models import User
 
 class RegisterView(generics.GenericAPIView):
     """ 사용자 등록 뷰 """
+
     serializer_class = RegisterSerializer
     renderer_classes = [UserRenderer, ]
 
     def post(self, request):
         """ 사용자 등록 요청 """
+
         user = request.data
         serializer = self.serializer_class(data=user)
         serializer.is_valid(raise_exception=True)
@@ -48,7 +49,7 @@ class RegisterView(generics.GenericAPIView):
         current_site = get_current_site(request).domain
         relative_link = reverse('email-verify')
         absurl = 'http://'+current_site+relative_link+"?token="+str(token) # absolute url
-        email_body = '안녕하세요, '+user.username+' 아래 링크를 사용하여 이메일을 확인하세요. \n' + absurl
+        email_body = '안녕하세요, '+user.username+'님! 아래 링크를 사용하여 가입인증을 완료하세요. \n' + absurl
         data = {
             'email_subject': '이메일 인증',
             'email_body': email_body, 
@@ -61,6 +62,7 @@ class RegisterView(generics.GenericAPIView):
 
 class VerifyEmail(views.APIView):
     """ 이메일 인증 뷰 """
+
     serializer_class = EmailVerificationSerializer
     token_param_config = openapi.Parameter(
         'token',
@@ -72,6 +74,7 @@ class VerifyEmail(views.APIView):
     @swagger_auto_schema(manual_parameters=[token_param_config])
     def get(self, request):
         """ 인증 정보 GET요청 """
+
         token = request.GET.get('token')
         try:
             payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
@@ -88,6 +91,7 @@ class VerifyEmail(views.APIView):
 
 class LoginAPIView(generics.GenericAPIView):
     """ 로그인뷰 """
+
     serializer_class = LoginSerializer
 
     def post(self, request):
@@ -99,10 +103,12 @@ class LoginAPIView(generics.GenericAPIView):
 
 class PasswordResetRequestEmail(generics.GenericAPIView):
     """ 비밀번호 재설정 메일 요청 """
+
     serializer_class = PasswordResetRequestEmailSerializer
 
     def post(self, request):
         """ 재설정 정보 POST 요청 """
+
         serializer = self.serializer_class(data=request.data)
 
         email = request.data['email']
@@ -127,14 +133,15 @@ class PasswordResetRequestEmail(generics.GenericAPIView):
 
 class PasswordTokenCheckAPI(generics.GenericAPIView):
     """ 비밀번호 토큰 자격 확인 """
-    def get(self, request, uidb64, token):
+
+    def get(self, uidb64, token):
         """ 비밀번호 토큰 자격 GET 요청 """
         try:
             user_id = smart_str(urlsafe_base64_decode(uidb64))
             user = User.objects.get(id=user_id)
 
             if not PasswordResetTokenGenerator().check_token(user, token):
-                return Response({'message':'앗! 토큰이 유효하지 않아요, 새 토큰을 요청해주세요'}, status=status.HTTP_401_UNAUTHORIZED)
+                return Response({'message':'토큰이 유효하지 않아요, 새 토큰을 요청해주세요'}, status=status.HTTP_401_UNAUTHORIZED)
 
             return Response({'success':True, 'message':'자격 증명을 완료했어요', 'uidb64':uidb64, 'token':token}, status=status.HTTP_200_OK)
 
@@ -144,10 +151,46 @@ class PasswordTokenCheckAPI(generics.GenericAPIView):
 
 class SetNewPasswordAPIView(generics.GenericAPIView):
     """ 새비밀번호 재설정 뷰 """
+
     serializer_class = SetNewPasswordSerializer
 
     def patch(self, request):
         """ 새비밀번호 PATCH 요청 """
         serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        serializer.is_valid(raise_exception = True)
         return Response({'success':True, 'message':'비밀번호 재설정을 완료했어요'}, status=status.HTTP_200_OK)
+
+
+class ProfileAPIView(views.APIView):
+    """ 프로필 뷰 """
+
+    def get(self, user_id):
+        """ 프로필 뷰 GET 요청 """
+        owner = get_object_or_404(User, id=user_id)
+        serializer = ProfileSerializer(owner)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, user_id):
+        """ 프로필 뷰 PUT 요청 """
+        owner = get_object_or_404(User, id=user_id)
+        if request.user != owner:
+            return Response({"error": "승인되지 않은 요청이에요."}, status=status.HTTP_401_UNAUTHORIZED)
+        serializer = ProfileSerializer(owner, data=request.data, partial=True)
+        # self.partial = kwargs.pop('partial', False)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        update_profile_info = ProfileSerializer(owner)
+        return Response(update_profile_info.data, status=status.HTTP_200_OK)
+
+    def deactive(self, request, user_id):
+        """ 유저 정보 비활성화 요청 """
+        owner = get_object_or_404(User, id=user_id)
+        if request.user == owner:
+            owner = get_object_or_404(User, id=user_id)
+            owner.is_active = False
+            owner.save()
+            return Response({"message": "계정이 비활성화 되었어요."},
+            status=status.HTTP_200_OK)
+        return Response({"error": "승인되지 않은 요청이에요."},
+            status=status.HTTP_401_UNAUTHORIZED)
