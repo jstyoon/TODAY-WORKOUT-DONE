@@ -43,7 +43,16 @@ class LoginSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(min_length=8, max_length=128)
     password = serializers.CharField(min_length=8, max_length=25, write_only=True)
     username = serializers.CharField(min_length=3, max_length=25, read_only=True)
-    tokens = serializers.CharField(min_length=8, max_length=70, read_only=True)
+    tokens = serializers.SerializerMethodField()
+
+    def get_tokens(self, obj):
+
+        user = User.objects.get(email=obj['email'])
+
+        return {
+            'access': user.tokens()['access'],
+            'refresh': user.tokens()['refresh'],
+        }
 
     class Meta:
         model = User
@@ -56,7 +65,7 @@ class LoginSerializer(serializers.ModelSerializer):
         user = auth.authenticate(email=email, password=password)
 
         if not user:
-            raise AuthenticationFailed('토큰을 확인했지만 인증을 실패했어요. \n 다시 시도해주세요.')
+            raise AuthenticationFailed('인증을 실패했어요. \n 다시 시도해주세요.')
         if not user.is_active:
             raise AuthenticationFailed('계정이 비활성화 되어있어요. \n 관리자에게 문의해주세요.')
         if not user.is_verified:
@@ -102,18 +111,18 @@ class SetNewPasswordSerializer(serializers.Serializer):
             user_id = force_str(urlsafe_base64_decode(uidb64))
             user = User.objects.get(id=user_id)
             if not PasswordResetTokenGenerator().check_token(user, token):
-                raise AuthenticationFailed('토큰을 확인했지만 인증을 실패했어요. \n 다시 시도해주세요.')
+                raise AuthenticationFailed('자격 인증에 실패했어요. \n 다시 시도해주세요.')
 
             user.set_password(password)
             user.save()
             return user
         except Exception as exc:
-            raise AuthenticationFailed('토큰을 확인했지만 인증을 실패했어요. \n 다시 시도해주세요.') from exc
+            raise AuthenticationFailed('자격 인증에 실패했어요. \n 다시 시도해주세요.') from exc
         return super().validate(attrs)
 
 
-class UserProfileSerializer(serializers.ModelSerializer):
+class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        exclude = ("is_admin", )
+        exclude = ['is_admin']
