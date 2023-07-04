@@ -125,4 +125,4 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        exclude = ['is_admin']
+        exclude = ['is_staff']

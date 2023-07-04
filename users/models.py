@@ -61,7 +61,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
     photo = models.ImageField(upload_to="%Y/%m", blank=True)
     about_me = models.TextField(max_length=256, blank=True)
 
@@ -77,7 +76,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         """ 유저모델의 토큰 """
         refresh = RefreshToken.for_user(self)
         return {
-            'rfresh':str(refresh),
+            'refresh':str(refresh),
             'access':str(refresh.access_token)
         }
         return ''
