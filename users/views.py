@@ -164,7 +164,7 @@ class SetNewPasswordAPIView(generics.GenericAPIView):
 class ProfileAPIView(views.APIView):
     """ 프로필 뷰 """
 
-    def get(self, user_id):
+    def get(self, request, user_id):
         """ 프로필 뷰 GET 요청 """
         owner = get_object_or_404(User, id=user_id)
         serializer = ProfileSerializer(owner)
