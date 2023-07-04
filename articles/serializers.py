@@ -16,21 +16,16 @@ class ArticlesSerializer(serializers.ModelSerializer):
         model = Articles
         fields = "__all__"
 
+
 class ArticleViewSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
-    check_status_count = serializers.SerializerMethodField()
 
     def get_user(self, obj):
         return {'username': obj.user.username, 'id': obj.user.pk}
     
-    def get_check_status_count(self, obj):
-        check_count = Articles.objects.filter(check_status=True)
-        return check_count.count()
-
-
     class Meta:
         model = Articles
-        fields = ["user","id","category","check_status","check_status_count","select_day"]
+        fields = "__all__"
 
 
 #데이터 직렬화
@@ -127,9 +122,12 @@ class ArticlePutSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    
+    username = serializers.CharField(source='user.username', read_only=True)
+    
     class Meta:
         model = Comment
-        fields = '__all__'
+        fields = ('id', 'user', 'username', 'article', 'content', 'likes', 'like_count')
 
 class CommentCreateSerializer(serializers.ModelSerializer):
     class Meta:
