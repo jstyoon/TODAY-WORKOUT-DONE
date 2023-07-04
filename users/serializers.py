@@ -45,13 +45,12 @@ class LoginSerializer(serializers.ModelSerializer):
     username = serializers.CharField(min_length=3, max_length=25, read_only=True)
     tokens = serializers.SerializerMethodField()
 
+
     def get_tokens(self, obj):
-
         user = User.objects.get(email=obj['email'])
-
         return {
             'access': user.tokens()['access'],
-            'rfresh': user.tokens()['rfresh'],
+            'refresh': user.tokens()['refresh'],
         }
 
     class Meta:
@@ -77,6 +76,7 @@ class LoginSerializer(serializers.ModelSerializer):
             'tokens': user.tokens
         }
         return super().validate(attrs)
+    
 
 
 class PasswordResetRequestEmailSerializer(serializers.Serializer):
@@ -104,12 +104,12 @@ class SetNewPasswordSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         try:
-            password = attrs.het('password')
+            password = attrs.get('password')
             token = attrs.get('token')
             uidb64 = attrs.get('uidb64')
 
             user_id = force_str(urlsafe_base64_decode(uidb64))
-            user = User.objects.get(id=user_id)
+            user = User.objects.get(id=self.context['request'].user.id)
             if not PasswordResetTokenGenerator().check_token(user, token):
                 raise AuthenticationFailed('자격 인증에 실패했어요. \n 다시 시도해주세요.')
 
@@ -126,3 +126,16 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         exclude = ['is_staff']
+
+class UserPasswordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["email", "password"]
+        read_only_fields = ["email"]
+
+    def update(self, instance, validated_data):
+        user = super().update(instance, validated_data)
+        password = user.password
+        user.set_password(password)
+        user.save()
+        return user

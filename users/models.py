@@ -73,9 +73,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         return str(self.email)
 
     def tokens(self):
-        """ 유저모델의 토큰 """
+        """ 사용자 모델의 토큰 """
         refresh = RefreshToken.for_user(self)
         return {
+            # access, refresh 토큰 반환
             'refresh':str(refresh),
             'access':str(refresh.access_token)
         }

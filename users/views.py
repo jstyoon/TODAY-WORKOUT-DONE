@@ -19,7 +19,7 @@ from .serializers import (RegisterSerializer,
                         LoginSerializer,
                         PasswordResetRequestEmailSerializer,
                         SetNewPasswordSerializer,
-                        ProfileSerializer)
+                        ProfileSerializer,UserPasswordSerializer)
 from .utils import Util
 from .renderers import UserRenderer
 
@@ -194,3 +194,12 @@ class ProfileAPIView(views.APIView):
             status=status.HTTP_200_OK)
         return Response({"error": "승인되지 않은 요청이에요."},
             status=status.HTTP_401_UNAUTHORIZED)
+    
+    def patch(self, request, user_id):
+        """ 유저 프로필 pw변경 """
+        serializer = UserPasswordSerializer(request.user, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
