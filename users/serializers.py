@@ -109,7 +109,7 @@ class SetNewPasswordSerializer(serializers.Serializer):
             uidb64 = attrs.get('uidb64')
 
             user_id = force_str(urlsafe_base64_decode(uidb64))
-            user = User.objects.get(id=self.context['request'].user.id)
+            user = User.objects.get(id=user_id)
             if not PasswordResetTokenGenerator().check_token(user, token):
                 raise AuthenticationFailed('자격 인증에 실패했어요. \n 다시 시도해주세요.')
 
