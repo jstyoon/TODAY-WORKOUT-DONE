@@ -13,7 +13,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 # Application definition
 INSTALLED_APPS = [
@@ -30,6 +30,8 @@ INSTALLED_APPS = [
     'articles',
     'challenges',
     'achievements',
+    'social_auth',
+    'utils',
     ####### django rest framework #######
     'drf_yasg',
     'rest_framework',
@@ -40,9 +42,9 @@ INSTALLED_APPS = [
     # 'dj_rest_auth.registration',
     # # django-allauth
     # 'allauth',
-    # 'allauth.account',
-    # 'allauth.socialaccount',
-    # 'allauth.socialaccount.providers.google',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
 ]
 
 SWAGGER_SETTINGS = {
@@ -56,11 +58,13 @@ SWAGGER_SETTINGS = {
 }
 
 # Refs https://pypi.org/project/django-cors-headers/
-CORS_ORIGIN_ALLOW_ALL = True ####### 테스트용
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:5500",
-#     "http://127.0.0.1:5500",
-# ]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5500",
+    "http://localhost:3000",
+    "http://127.0.0.1:8080",
+    "https://tomatopizza.github.io",
+]
 
 ####### 날씨 API 관련 #######
 WEATHER_KEY = os.environ.get("WEATHER_KEY")
