@@ -1,4 +1,6 @@
 """ docstring """
+import os
+import jwt
 from rest_framework import generics, status, views
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
@@ -10,22 +12,22 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import smart_str, smart_bytes, DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from django.http import HttpResponsePermanentRedirect
 from django.conf import settings
 from django.urls import reverse
-import jwt
-from .models import User
+from .renderers import UserRenderer
+from .utils import Util
 from .serializers import (RegisterSerializer,
                         EmailVerificationSerializer,
                         LoginSerializer,
                         PasswordResetRequestEmailSerializer,
                         SetNewPasswordSerializer,
                         ProfileSerializer)
-from .utils import Util
-from .renderers import UserRenderer
+from .models import User
 
 
-# class CustomTokenObtainPairView(TokenObtainPairView):
-#     serializer_class = CustomTokenObtainPairSerializer
+class AbsoluteRedirect(HttpResponsePermanentRedirect):
+    allowed_schemes = [os.environ.get('APP_SCHEME'), 'http', 'https']
 
 
 class RegisterView(generics.GenericAPIView):
@@ -35,8 +37,9 @@ class RegisterView(generics.GenericAPIView):
     renderer_classes = [UserRenderer, ]
 
     def post(self, request):
-        """ 사용자 등록 요청 """
-
+        """ 사용자 등록 POST 요청
+        absurl = absoluteurl
+        """
         user = request.data
         serializer = self.serializer_class(data=user)
         serializer.is_valid(raise_exception=True)
@@ -48,10 +51,10 @@ class RegisterView(generics.GenericAPIView):
 
         current_site = get_current_site(request).domain
         relative_link = reverse('email-verify')
-        absurl = 'http://'+current_site+relative_link+"?token="+str(token) # absolute url
+        absurl = 'http://'+current_site+relative_link+"?token="+str(token)
         email_body = '안녕하세요, '+user.username+'님! 아래 링크를 사용하여 가입인증을 완료하세요. \n' + absurl
         data = {
-            'email_subject': '이메일 인증',
+            'email_subject': '이메일을 인증하세요',
             'email_body': email_body, 
             'to_email': user.email, 
             }
@@ -62,7 +65,6 @@ class RegisterView(generics.GenericAPIView):
 
 class VerifyEmail(views.APIView):
     """ 이메일 인증 뷰 """
-
     serializer_class = EmailVerificationSerializer
     token_param_config = openapi.Parameter(
         'token',
@@ -74,7 +76,6 @@ class VerifyEmail(views.APIView):
     @swagger_auto_schema(manual_parameters=[token_param_config])
     def get(self, request):
         """ 인증 정보 GET요청 """
-
         token = request.GET.get('token')
         try:
             payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
@@ -84,14 +85,13 @@ class VerifyEmail(views.APIView):
                 user.save()
             return Response({'message': '성공적으로 활성화됨'}, status=status.HTTP_201_CREATED)
         except jwt.ExpiredSignatureError:
-            return Response({'message': '활성화가 만료됨'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': '토큰 만료됨'}, status=status.HTTP_400_BAD_REQUEST)
         except jwt.exceptions.DecodeError:
             return Response({'message': '유효하지 않은 토큰'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LoginAPIView(generics.GenericAPIView):
     """ 로그인뷰 """
-
     serializer_class = LoginSerializer
 
     def post(self, request):
@@ -133,25 +133,37 @@ class PasswordResetRequestEmail(generics.GenericAPIView):
 
 class PasswordTokenCheckAPI(generics.GenericAPIView):
     """ 비밀번호 토큰 자격 확인 """
+    serializer_class = SetNewPasswordSerializer
 
-    def get(self, uidb64, token):
+    def get(self, request, uidb64, token):
         """ 비밀번호 토큰 자격 GET 요청 """
+        redirect_url = request.GET.get('redirect_url')
+        
         try:
             user_id = smart_str(urlsafe_base64_decode(uidb64))
-            user = User.objects.get(id=user_id)
+            user = User.objects.get(id=user_id, )
 
             if not PasswordResetTokenGenerator().check_token(user, token):
-                return Response({'message':'토큰이 유효하지 않아요, 새 토큰을 요청해주세요'}, status=status.HTTP_401_UNAUTHORIZED)
-
-            return Response({'success':True, 'message':'자격 증명을 완료했어요', 'uidb64':uidb64, 'token':token}, status=status.HTTP_200_OK)
+                if len(redirect_url) > 3:
+                    return AbsoluteRedirect(redirect_url+'?token_valid=False')
+                else:
+                    return AbsoluteRedirect(os.environ.get('FRONTEND_URL', '')+'?token_valid=False')
+            if redirect_url and len(redirect_url) > 3:
+                return AbsoluteRedirect(redirect_url+'?token_valid=True&message=Credentials Valid&uidb64='+uidb64+'&token='+token)
+            else:
+                return AbsoluteRedirect(os.environ.get('FRONTEND_URL', '')+'?token_valid=False')
 
         except DjangoUnicodeDecodeError:
-            return Response({'error':'앗! DecodeError, Encoding을 확인해주세요'}, status=status.HTTP_406_NOT_ACCEPTABLE)
+            try:
+                if not PasswordResetTokenGenerator().check_token(user, token):
+                    return AbsoluteRedirect(redirect_url+'?token_valid=False')
+
+            except UnboundLocalError:
+                return Response({'error': '토큰이 유효하지 않아요, 토큰을 재발급하세요'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SetNewPasswordAPIView(generics.GenericAPIView):
     """ 새비밀번호 재설정 뷰 """
-
     serializer_class = SetNewPasswordSerializer
 
     def patch(self, request):
@@ -164,7 +176,7 @@ class SetNewPasswordAPIView(generics.GenericAPIView):
 class ProfileAPIView(views.APIView):
     """ 프로필 뷰 """
 
-    def get(self, user_id):
+    def get(self, request, user_id):
         """ 프로필 뷰 GET 요청 """
         owner = get_object_or_404(User, id=user_id)
         serializer = ProfileSerializer(owner)
@@ -194,3 +206,17 @@ class ProfileAPIView(views.APIView):
             status=status.HTTP_200_OK)
         return Response({"error": "승인되지 않은 요청이에요."},
             status=status.HTTP_401_UNAUTHORIZED)
+
+
+# class LogoutAPIView(generics.GenericAPIView):
+#     serializer_class = LogoutSerializer
+
+#     permission_classes = (permissions.IsAuthenticated)
+
+#     def post(self, request):
+
+#         serializer = self.serializer_class(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()
+
+#         return Response(status=status.HTTP_204_NO_CONTENT)
