@@ -51,7 +51,7 @@ class LoginSerializer(serializers.ModelSerializer):
 
         return {
             'access': user.tokens()['access'],
-            'refresh': user.tokens()['refresh'],
+            'rfresh': user.tokens()['rfresh'],
         }
 
     class Meta:
