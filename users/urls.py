@@ -7,7 +7,7 @@ from .views import (RegisterView,
                     PasswordTokenCheckAPI,
                     PasswordResetRequestEmail,
                     SetNewPasswordAPIView,
-                    ProfileAPIView)
+                    ProfileAPIView,)
 
 urlpatterns = [
     # v1/users/
@@ -16,7 +16,8 @@ urlpatterns = [
     path('email-verify/', VerifyEmail.as_view(), name='email-verify'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
     path('request-reset-email/', PasswordResetRequestEmail.as_view(), name='request-reset-email'),
-    path('password-reset/', SetNewPasswordAPIView.as_view(), name='password-reset'),
+    path('password-reset/<uidb64>/<token>/', PasswordTokenCheckAPI.as_view(), name='password-reset-confirm'),
+    path('password-reset-complete/', SetNewPasswordAPIView.as_view(), name='password-reset-complete'),
     path('profile/<int:user_id>/', ProfileAPIView.as_view(), name='Profile'),
 
 ]

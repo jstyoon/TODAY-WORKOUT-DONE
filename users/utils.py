@@ -1,9 +1,20 @@
 """ docstring """
+import threading
 from django.core.mail import EmailMessage
 
 
+class EmailThread(threading.Thread):
+
+    def __init__(self, email):
+        self.email = email
+        threading.Thread.__init__(self)
+
+    def run(self):
+        self.email.send()
+
+
 class Util:
-    """ 별도 기능 클래스 """
+    """ 별도 기능 """
     @staticmethod
     def send_email(data):
         """ EmailMessage 재정의 """
@@ -12,4 +23,4 @@ class Util:
             body=data['email_body'],
             to=[data['to_email']]
         )
-        email.send()
+        EmailThread(email).start()

@@ -3,7 +3,6 @@ from datetime import timedelta
 from pathlib import Path
 import os
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -13,7 +12,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = []
 
 # Application definition
 INSTALLED_APPS = [
@@ -23,25 +22,25 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    ####### django-cors-headers #######
+    'django.contrib.sites', #######
+    # django-cors-headers 
     'corsheaders',
-    ####### project app #######
+    # project app 
     'users',
     'articles',
     'challenges',
-    'achievements',
+    'achieves',
     'social_auth',
-    'utils',
-    ####### django rest framework #######
+    #django rest framework 
     'drf_yasg',
     'rest_framework',
-    # 'rest_framework_simplejwt',
+    'rest_framework_simplejwt',
     # 'rest_framework.authtoken',
     # # dj_rest_auth
     # 'dj_rest_auth',
     # 'dj_rest_auth.registration',
     # # django-allauth
-    # 'allauth',
+    'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
@@ -60,28 +59,35 @@ SWAGGER_SETTINGS = {
 # Refs https://pypi.org/project/django-cors-headers/
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5500",
-    "http://localhost:3000",
+    "http://127.0.0.1:5500",
+    "http://127.0.0.1:3000",
     "http://127.0.0.1:8080",
-    "https://tomatopizza.github.io",
+    "http://127.0.0.1:8000",
 ]
+
+CORS_ALLOW_HEADERS = [ # CORS 이슈 해결
+    'authorization',    
+    'content-type',
+    ]
 
 ####### 날씨 API 관련 #######
 WEATHER_KEY = os.environ.get("WEATHER_KEY")
 
 ####### 사이트 관련 #######
-# SITE_ID = 1
+SITE_ID = 6 # 서버사이트지정 이게 문제였네... 6번으로 서버에서 인식중
+FRONTEND_URL = os.environ.get('FRONTEND_URL')
+APP_SCHEME = os.environ.get('APP_SCHEME')
 
 ####### 이메일 인증 관련 #######
+# https://en.wikipedia.org/wiki/Simple_Mail_Transfer_Protocol
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER") #sender's email-id
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD") #password associated with above email-id
-# DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-# ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 # ACCOUNT_EMAIL_REQUIRED = True
 
 # ACCOUNT_EMAIL_VERIFICATION = "mandatory"
@@ -91,9 +97,9 @@ EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD") #password associated
 ###### 소셜 계정 관련 #######
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
-#     # Needed to login by username in Django admin, regardless of `allauth`
-#     'allauth.account.auth_backends.AuthenticationBackend', # <- OAuth 필수 #
-#     # `allauth` specific authentication methods, such as login by e-mail
+    # Needed to login by username in Django admin, regardless of `allauth`
+    # 'allauth.account.auth_backends.AuthenticationBackend', # <- OAuth 필수 #
+    # `allauth` specific authentication methods, such as login by e-mail
 ]
 
 # SOCIALACCOUNT_LOGIN_ON_GET = True
@@ -117,18 +123,18 @@ AUTHENTICATION_BACKENDS = [
 
 REST_FRAMEWORK = {
 
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination', 
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
     'NON_FIELD_ERRORS_KEY': 'error',
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PARSER_CLASSES': (
+        # Specifies the parser used when accessing request.data properties.
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser'
     )
-    # 'DEFAULT_PARSER_CLASSES': (
-    #     # Specifies the parser used when accessing request.data properties.
-    #     'rest_framework.parsers.JSONParser',
-    #     'rest_framework.parsers.FormParser',
-    #     'rest_framework.parsers.MultiPartParser'
-    # )
 }
 
 SIMPLE_JWT = {

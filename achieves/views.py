@@ -1,30 +1,31 @@
 """ docstring """
+from django.shortcuts import render
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework import permissions
-from .serializers import AchievementSerializer
-from .models import Achievement
+from .serializers import AchieveSerializer
+from .models import Achieve
 from .permissions import IsOwner
 # Create your views here.
 
 
-class AchievementListAPIView(ListCreateAPIView):
-    serializer_class = AchievementSerializer
+class AchieveListAPIView(ListCreateAPIView):
+    serializer_class = AchieveSerializer
+    queryset = Achieve.objects.all()
     permission_classes = [permissions.IsAuthenticated]
-    queryset = Achievement.objects.all()
 
     def perform_create(self, serializer):
         return serializer.save(owner=self.request.user)
 
-    def get_queryset(self, serializer):
+    def get_queryset(self):
         return self.queryset.filter(owner=self.request.user)
 
 
-class AchievementDetailAPIView(RetrieveUpdateDestroyAPIView):
-    serializer_class = AchievementSerializer
+class AchieveDetailAPIView(RetrieveUpdateDestroyAPIView):
+    serializer_class = AchieveSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwner,]
-    queryset = Achievement.objects.all()
-    lookup_field = 'owner_id'
+    queryset = Achieve.objects.all()
+    lookup_field = 'id'
 
-    def get_queryset(self, serializer):
+    def get_queryset(self):
         return self.queryset.filter(owner=self.request.user)
 

@@ -1,7 +1,9 @@
 """ docstring """
+
 from django.db import models
 from django.contrib.auth.models import PermissionsMixin, AbstractBaseUser, BaseUserManager
 from rest_framework_simplejwt.tokens import RefreshToken
+
 
 class CommonModel(models.Model):
     """ 공통되는 필드를 상속하는 헬퍼 클래스 """
@@ -50,8 +52,8 @@ AUTH_PROVIDERS = {'google': 'google', 'email': 'email'}
 
 class User(AbstractBaseUser, PermissionsMixin):
     """ 사용자 모델 """
-    email = models.EmailField(max_length=30, unique=True, db_index=True)
     username = models.CharField(max_length=25, unique=True, db_index=True)
+    email = models.EmailField(max_length=30, unique=True, db_index=True)
     is_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -67,7 +69,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     def __str__(self):
-        return f'{self.email}'
+        return str(self.email)
 
     def tokens(self):
         """ 사용자 모델의 토큰 """

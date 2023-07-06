@@ -1,7 +1,7 @@
 """ docstring """
 import os
 import jwt
-from rest_framework import generics, status, views
+from rest_framework import generics, status, views, permissions
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 from drf_yasg.utils import swagger_auto_schema
@@ -15,6 +15,7 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.http import HttpResponsePermanentRedirect
 from django.conf import settings
 from django.urls import reverse
+from django.shortcuts import redirect
 from .renderers import UserRenderer
 from .utils import Util
 from .serializers import (RegisterSerializer,
@@ -24,7 +25,6 @@ from .serializers import (RegisterSerializer,
                         SetNewPasswordSerializer,
                         ProfileSerializer)
 from .models import User
-
 
 class AbsoluteRedirect(HttpResponsePermanentRedirect):
     allowed_schemes = [os.environ.get('APP_SCHEME'), 'http', 'https']
@@ -52,7 +52,8 @@ class RegisterView(generics.GenericAPIView):
         current_site = get_current_site(request).domain
         relative_link = reverse('email-verify')
         absurl = 'http://'+current_site+relative_link+"?token="+str(token)
-        email_body = '안녕하세요, '+user.username+'님! 아래 링크를 사용하여 가입인증을 완료하세요. \n' + absurl
+        email_body = '안녕하세요 '+user.username + \
+        ' 아래 링크를 사용하여 가입인증을 완료하세요 \n' + absurl
         data = {
             'email_subject': '이메일을 인증하세요',
             'email_body': email_body, 
@@ -66,6 +67,7 @@ class RegisterView(generics.GenericAPIView):
 class VerifyEmail(views.APIView):
     """ 이메일 인증 뷰 """
     serializer_class = EmailVerificationSerializer
+
     token_param_config = openapi.Parameter(
         'token',
         in_ = openapi.IN_QUERY,
@@ -73,12 +75,12 @@ class VerifyEmail(views.APIView):
         type = openapi.TYPE_STRING
     )
 
-    @swagger_auto_schema(manual_parameters=[token_param_config])
+    # @swagger_auto_schema(manual_parameters=[token_param_config])
     def get(self, request):
         """ 인증 정보 GET요청 """
         token = request.GET.get('token')
         try:
-            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+            payload = jwt.decode(token, os.environ.get('SECRET_KEY'))
             user = User.objects.get(id=payload['user_id'])
             if not user.is_verified:
                 user.is_verified = True
@@ -120,8 +122,10 @@ class PasswordResetRequestEmail(generics.GenericAPIView):
             current_site = get_current_site(request=request).domain
             relative_link = reverse(
                 'password-reset-confirm', kwargs={'uidb64': uidb64, 'token': token})
+            redirect_url = request.data.get('redirect_url', '')
             absurl = 'http://'+current_site + relative_link
-            email_body = '안녕하세요, \n 아래 링크를 통해 비밀번호를 재설정하세요. \n' + absurl
+            email_body = '안녕하세요, \n 아래 링크를 통해 비밀번호를 재설정하세요 \n' + \
+                absurl+"?redirect_url="+redirect_url,
             data = {
                 'email_subject':'비밀번호 초기화',
                 'email_body': email_body,
@@ -149,7 +153,7 @@ class PasswordTokenCheckAPI(generics.GenericAPIView):
                 else:
                     return AbsoluteRedirect(os.environ.get('FRONTEND_URL', '')+'?token_valid=False')
             if redirect_url and len(redirect_url) > 3:
-                return AbsoluteRedirect(redirect_url+'?token_valid=True&message=Credentials Valid&uidb64='+uidb64+'&token='+token)
+                return AbsoluteRedirect(redirect_url+'?token_valid=True&?message=Credentials Valid&uidb64='+uidb64+'&token='+token)
             else:
                 return AbsoluteRedirect(os.environ.get('FRONTEND_URL', '')+'?token_valid=False')
 
@@ -171,7 +175,6 @@ class SetNewPasswordAPIView(generics.GenericAPIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception = True)
         return Response({'success':True, 'message':'비밀번호 재설정을 완료했어요'}, status=status.HTTP_200_OK)
-
 
 class ProfileAPIView(views.APIView):
     """ 프로필 뷰 """
