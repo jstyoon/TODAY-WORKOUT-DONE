@@ -183,7 +183,7 @@ class ProfileAPIView(views.APIView):
         update_profile_info = ProfileSerializer(owner)
         return Response(update_profile_info.data, status=status.HTTP_200_OK)
 
-    def deactive(self, request, user_id):
+    def delete(self, request, user_id):
         """ 유저 정보 비활성화 요청 """
         owner = get_object_or_404(User, id=user_id)
         if request.user == owner:
