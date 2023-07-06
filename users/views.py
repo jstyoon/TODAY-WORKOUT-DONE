@@ -46,15 +46,15 @@ class RegisterView(generics.GenericAPIView):
 
         token = RefreshToken.for_user(user).access_token
 
-        current_site = get_current_site(request).domain
+        current_site = settings.SITE_DOMAIN
         relative_link = reverse('email-verify')
-        absurl = 'http://'+current_site+relative_link+"?token="+str(token) # absolute url
+        absurl = 'http://' + current_site + '/template/email_verify.html?token=' + str(token)
         email_body = '안녕하세요, '+user.username+'님! 아래 링크를 사용하여 가입인증을 완료하세요. \n' + absurl
         data = {
             'email_subject': '이메일 인증',
             'email_body': email_body, 
             'to_email': user.email, 
-            }
+        }
 
         Util.send_email(data)
         return Response({'message': f'{user_data}인증 메일이 발송되었어요'}, status=status.HTTP_201_CREATED)
