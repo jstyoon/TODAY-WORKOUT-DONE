@@ -118,10 +118,11 @@ class PasswordResetRequestEmail(generics.GenericAPIView):
             uidb64 = urlsafe_base64_encode(smart_bytes(user.id))
             token = PasswordResetTokenGenerator().make_token(user)
             current_site = get_current_site(request=request).domain
-            relative_link = reverse(
-                'password-reset-confirm', kwargs={'uidb64': uidb64, 'token': token})
-            absurl = 'http://'+current_site + relative_link
+            frontend_site = "127.0.0.1:5500"
+            relative_link = f"/template/set_pw.html?uidb64={uidb64}&token={token}"
+            absurl = 'http://' + frontend_site + relative_link
             email_body = '안녕하세요, \n 아래 링크를 통해 비밀번호를 재설정하세요. \n' + absurl
+
             data = {
                 'email_subject':'비밀번호 초기화',
                 'email_body': email_body,
@@ -134,7 +135,7 @@ class PasswordResetRequestEmail(generics.GenericAPIView):
 class PasswordTokenCheckAPI(generics.GenericAPIView):
     """ 비밀번호 토큰 자격 확인 """
 
-    def get(self, uidb64, token):
+    def get(self,request, uidb64, token):
         """ 비밀번호 토큰 자격 GET 요청 """
         try:
             user_id = smart_str(urlsafe_base64_decode(uidb64))
@@ -183,7 +184,7 @@ class ProfileAPIView(views.APIView):
         update_profile_info = ProfileSerializer(owner)
         return Response(update_profile_info.data, status=status.HTTP_200_OK)
 
-    def deactive(self, request, user_id):
+    def delete(self, request, user_id):
         """ 유저 정보 비활성화 요청 """
         owner = get_object_or_404(User, id=user_id)
         if request.user == owner:
