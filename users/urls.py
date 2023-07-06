@@ -1,11 +1,24 @@
-from django.urls import path, include
+""" docstring """
+from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
-from users import views
+from .views import (RegisterView,
+                    VerifyEmail,
+                    LoginAPIView,
+                    PasswordTokenCheckAPI,
+                    PasswordResetRequestEmail,
+                    SetNewPasswordAPIView,
+                    ProfileAPIView)
+
 
 urlpatterns = [
-    # users/
-    path('', views.UserRegisterView.as_view(), name='register_view'), 
-    path('<int:user_id>/', views.UserView.as_view(), name='user_view'), 
-    path('api/token/', views.CustomTokenObtainPairView.as_view(), name='ctop_view'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='tr_view'),
+    # v1/users/
+    path('register/', RegisterView.as_view(), name='register'),
+    path('login/', LoginAPIView.as_view(), name='login'),
+    path('email-verify/', VerifyEmail.as_view(), name='email-verify'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
+    path('request-reset-email/', PasswordResetRequestEmail.as_view(), name='request-reset-email'),
+    path('password-reset/<str:uidb64>/<str:token>/', PasswordTokenCheckAPI.as_view(), name='password-reset-confirm'),
+    path('password-reset-complete/', SetNewPasswordAPIView.as_view(), name='password-reset-complete'),
+    path('profile/<int:user_id>/', ProfileAPIView.as_view(), name='Profile'),
+
 ]
