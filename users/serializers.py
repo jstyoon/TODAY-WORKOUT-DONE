@@ -45,10 +45,9 @@ class LoginSerializer(serializers.ModelSerializer):
     username = serializers.CharField(min_length=3, max_length=25, read_only=True)
     tokens = serializers.SerializerMethodField()
 
+
     def get_tokens(self, obj):
-
         user = User.objects.get(email=obj['email'])
-
         return {
             'access': user.tokens()['access'],
             'refresh': user.tokens()['refresh'],
@@ -77,6 +76,7 @@ class LoginSerializer(serializers.ModelSerializer):
             'tokens': user.tokens
         }
         return super().validate(attrs)
+    
 
 
 class PasswordResetRequestEmailSerializer(serializers.Serializer):
@@ -104,7 +104,7 @@ class SetNewPasswordSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         try:
-            password = attrs.het('password')
+            password = attrs.get('password')
             token = attrs.get('token')
             uidb64 = attrs.get('uidb64')
 
@@ -126,3 +126,16 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         exclude = ['is_staff']
+
+class UserPasswordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["email", "password"]
+        read_only_fields = ["email"]
+
+    def update(self, instance, validated_data):
+        user = super().update(instance, validated_data)
+        password = user.password
+        user.set_password(password)
+        user.save()
+        return user
