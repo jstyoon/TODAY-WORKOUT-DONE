@@ -219,3 +219,6 @@ STATIC_URL = '/static/'
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 # MEDIA_ROOT = BASE_DIR / "media"
 MEDIA_URL = "/media/"
+
+#
+SITE_DOMAIN = os.environ.get('SITE_DOMAIN', 'tomatopizza.github.io')
