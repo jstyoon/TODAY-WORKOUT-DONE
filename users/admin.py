@@ -72,22 +72,6 @@ class UserAdmin(BaseUserAdmin):
     filter_horizontal = []
 
 
-    # fieldsets = (
-    #     (None, {
-    #         "fields": ["email", "username"],
-    #         "classes": ["collapse", "wide"],
-    #     }
-    #     ),
-    # )
-    # add_fieldsets = (
-    #     (None, {
-    #          "fields": ["email", "username", "password1", "password2"],
-    #          "classes": ["collapse", "wide"],
-    #      }
-    #      )
-    # )
-
 
 admin.site.register(User, UserAdmin)
 admin.site.unregister(Group)
-# unregister the Group model from admin.
