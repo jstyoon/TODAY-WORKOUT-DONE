@@ -14,10 +14,16 @@
 꾸준히 할 수 있도록 저희가 도와드릴게요!
 
 ---
-# 사용 기술 스택
+# 사용 스텍
+
 ## 백 엔드
 <img src="https://img.shields.io/badge/python-3776AB?style=for-the-badge&logo=python&logoColor=white"> 
 <img src="https://img.shields.io/badge/django-092E20?style=for-the-badge&logo=django&logoColor=white"> 
+
+## 버전
+`Python 3.11`
+`Django 4.2`
+`Django Rest Framework 3.14`
 
 ## [프론트 엔드](https://github.com/rlfrhdiddl/A8ooo_fr)
 <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=CSS3&logoColor=white">
