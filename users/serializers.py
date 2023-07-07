@@ -27,7 +27,6 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return User.objects.create_user(**validated_data)
-        # return super().validate(attrs)
 
 class EmailVerificationSerializer(serializers.ModelSerializer):
     """ 이메일 인증 """
