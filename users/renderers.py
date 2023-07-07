@@ -15,4 +15,3 @@ class UserRenderer(renderers.JSONRenderer):
         else:
             response = json.dumps({'dmydata': data})
         return response
-        # super().render(data, accepted_media_type=accepted_media_type, renderer_context=renderer_context)
