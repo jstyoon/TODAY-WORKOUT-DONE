@@ -36,7 +36,7 @@ class UserManager(BaseUserManager):
             email=self.normalize_email(email)
         )
         user.set_password(password)
-        user.save() # using=self._db
+        user.save()
         return user
 
     def create_superuser(self, username, email, password=None):
@@ -47,7 +47,7 @@ class UserManager(BaseUserManager):
         user = self.create_user(username, email, password)
         user.is_superuser = True
         user.is_staff = True
-        user.save() # using=self._db
+        user.save()
         return user
 
 
@@ -76,18 +76,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         """ 사용자 모델의 토큰 """
         refresh = RefreshToken.for_user(self)
         return {
-            # access, refresh 토큰 반환
             'refresh':str(refresh),
             'access':str(refresh.access_token)
         }
         return ''
-
-    # def has_perm(self, perm, obj=None):
-    #     return True
-
-    # def has_module_perms(self, app_label):
-    #     return True
-
-    # @property
-    # def is_staff(self):
-    #     return self.is_admin
