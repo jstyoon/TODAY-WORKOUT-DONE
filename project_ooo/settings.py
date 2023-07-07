@@ -10,6 +10,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
+WEATHER_KEY = os.environ.get("WEATHER_KEY")
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -23,26 +25,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    ####### django-cors-headers #######
-    'corsheaders',
-    ####### project app #######
     'users',
     'articles',
-    'challenges',
-    'achievements',
-    ####### django rest framework #######
+    'corsheaders',
     'drf_yasg',
     'rest_framework',
-    # 'rest_framework_simplejwt',
-    # 'rest_framework.authtoken',
-    # # dj_rest_auth
-    # 'dj_rest_auth',
-    # 'dj_rest_auth.registration',
-    # # django-allauth
-    # 'allauth',
-    # 'allauth.account',
-    # 'allauth.socialaccount',
-    # 'allauth.socialaccount.providers.google',
 ]
 
 SWAGGER_SETTINGS = {
@@ -56,60 +43,21 @@ SWAGGER_SETTINGS = {
 }
 
 # Refs https://pypi.org/project/django-cors-headers/
-CORS_ORIGIN_ALLOW_ALL = True ####### 테스트용
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:5500",
-#     "http://127.0.0.1:5500",
-# ]
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5500",
+    "http://127.0.0.1:5500",
+]
 
-####### 날씨 API 관련 #######
-WEATHER_KEY = os.environ.get("WEATHER_KEY")
-
-####### 사이트 관련 #######
-# SITE_ID = 1
-
-####### 이메일 인증 관련 #######
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER") #sender's email-id
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD") #password associated with above email-id
-# DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 
-# ACCOUNT_CONFIRM_EMAIL_ON_GET = True
-# ACCOUNT_EMAIL_REQUIRED = True
-
-# ACCOUNT_EMAIL_VERIFICATION = "mandatory"
-# ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1
-# LOGIN_REDIRECT_URL = "https://tomatopizza.github.io/template/index.html"
-
-###### 소셜 계정 관련 #######
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-#     # Needed to login by username in Django admin, regardless of `allauth`
-#     'allauth.account.auth_backends.AuthenticationBackend', # <- OAuth 필수 #
-#     # `allauth` specific authentication methods, such as login by e-mail
+    'django.contrib.auth.backends.ModelBackend'
 ]
-
-# SOCIALACCOUNT_LOGIN_ON_GET = True
-
-# SOCIALACCOUNT_PROVIDERS = { # Provider specific settings
-#     "google": {
-#         "SCOPE": [
-#             "profile",
-#             "email",
-#         ],
-#         "AUTH_PARAMS": {
-#             "access_type": "online",
-#         },
-#         "APP": {
-#             "client_id": str(os.environ.get("GOOGLE_CLIENT_ID")),
-#             "secret": str(os.environ.get("GOOGLE_CLIENT_SECRET")),
-#             "key": "",
-#         },
-#     }
-# }
 
 REST_FRAMEWORK = {
 
@@ -118,17 +66,16 @@ REST_FRAMEWORK = {
     'NON_FIELD_ERRORS_KEY': 'error',
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PARSER_CLASSES': (
+    'rest_framework.parsers.JSONParser',
+    'rest_framework.parsers.FormParser',
+    'rest_framework.parsers.MultiPartParser'
     )
-    # 'DEFAULT_PARSER_CLASSES': (
-    #     # Specifies the parser used when accessing request.data properties.
-    #     'rest_framework.parsers.JSONParser',
-    #     'rest_framework.parsers.FormParser',
-    #     'rest_framework.parsers.MultiPartParser'
-    # )
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=720),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'ROTATE_REFRESH_TOKENS': True,
 }
@@ -219,6 +166,3 @@ STATIC_URL = '/static/'
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 # MEDIA_ROOT = BASE_DIR / "media"
 MEDIA_URL = "/media/"
-
-#
-SITE_DOMAIN = os.environ.get('SITE_DOMAIN', 'tomatopizza.github.io')
