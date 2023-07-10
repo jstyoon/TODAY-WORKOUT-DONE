@@ -1,83 +1,82 @@
+""" docstring """
 from django.db import models
-from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
-# Create your models here.
+from django.contrib.auth.models import (PermissionsMixin,
+                                        AbstractBaseUser,
+                                        BaseUserManager)
+from rest_framework_simplejwt.tokens import RefreshToken
+
 
 class CommonModel(models.Model):
     """ 공통되는 필드를 상속하는 헬퍼 클래스 """
 
     db_status_choice = [
-        (1, 'active'),
-        (2, 'delete'),
+        (1, 'active'),  # 활성화
+        (2, 'deactive'),  # 비활성화
     ]
     created_at = models.DateTimeField("생성", auto_now_add=True)
     updated_at = models.DateTimeField("수정", auto_now=True)
     db_status = models.PositiveIntegerField(
         choices=db_status_choice, default=1)
-        
+
     class Meta:
         abstract = True
 
 
-# custom user model 사용시 정의되어 있어야 함
-# UserManager 클래스 
-# create_user, create_superuser 메서드 
 class UserManager(BaseUserManager):
-    def create_user(self, username, password=None): #  email,
 
-        # if not email:
-        #     raise ValueError('사용자 이메일은 필수입니다.')
-        if not username:
-            raise ValueError('사용자 유저이름은 필수입니다.')
-        
+    def create_user(self, username, email, password=None):
+
+        if username is None:
+            raise TypeError('Users should have a username')
+        if email is None:
+            raise TypeError('Users should have a email')
+
         user = self.model(
-            # email=self.normalize_email(email),
-            username=username
+            username=username,
+            email=self.normalize_email(email)
         )
-        print("가입") # test 배포시 지워주세요
         user.set_password(password)
-        user.save(using=self._db)
+        user.save()
         return user
 
-    def create_superuser(self, username, password=None): #  email,
+    def create_superuser(self, username, email, password=None):
 
-        superuser = self.create_user(
-            # email=email,
-            username=username,
-            password=password,
-        )
-        superuser.is_admin = True
-        superuser.is_active = True
-        superuser.save(using=self._db)
-        return superuser
+        if password is None:
+            raise TypeError('Password should not be none')
+
+        user = self.create_user(username, email, password)
+        user.is_superuser = True
+        user.is_staff = True
+        user.save()
+        return user
 
 
-class User(AbstractBaseUser, CommonModel):
-    # AbstractBaseUser 재정의
-    
-    username = models.CharField("사용자 계정", max_length=50, unique=True) # PK당 하나의 아이디 등록 가능
-    email = models.EmailField("이메일 주소", max_length=100)
-    password = models.CharField("비밀번호", max_length=128)
-    about_me = models.TextField("소개", max_length=255, blank=True)
-    photo = models.ImageField("사용자 사진", upload_to="%Y/%m", blank=True) # 사용자 사진
-    is_active = models.BooleanField(default=True) # 계정 활성화
-    is_admin = models.BooleanField(default=False) # 관리자 권한
-    
-    objects = UserManager() # custom UserManager 사용
+class User(AbstractBaseUser, PermissionsMixin):
+    """ 사용자 모델 """
 
-    USERNAME_FIELD = 'username' # id로 사용 할 필드 지정
-    
-    REQUIRED_FIELDS = [] # user 생성시 입력하는 필드 지정 (id, pw 제외)
-    
+    username = models.CharField(max_length=256, unique=True, db_index=True)
+    email = models.EmailField(max_length=256, unique=True, db_index=True)
+    is_verified = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    photo = models.ImageField(upload_to="%Y/%m", blank=True)
+    about_me = models.TextField(max_length=256, blank=True)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
+
+    objects = UserManager()
 
     def __str__(self):
-        return f"{self.username}" # 스트링으로 표시되는 필드
+        return str(self.email)
 
-    def has_perm(self, perm, obj=None):
-        return True
-
-    def has_module_perms(self, app_label):
-        return True
-
-    @property
-    def is_staff(self):
-        return self.is_admin
+    def tokens(self):
+        """ 사용자 모델의 토큰 """
+        refresh = RefreshToken.for_user(self)
+        return {
+            'refresh':str(refresh),
+            'access':str(refresh.access_token)
+        }
+        return ''

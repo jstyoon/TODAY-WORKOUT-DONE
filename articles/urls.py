@@ -19,6 +19,8 @@ urlpatterns = [
          views.CommentDetailView.as_view()),
     path('comment/<int:comment_id>/like_comment/',
          views.CommentLikesView.as_view()),
+    path('ranking/',
+          views.RankingViews.as_view()),
 
 ]
 
